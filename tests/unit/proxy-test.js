@@ -4,6 +4,7 @@ import { ProxyMixin } from 'ember-deep-buffered-proxy';
 import { ArrayProxy } from 'ember-deep-buffered-proxy';
 import { A } from '@ember/array';
 import { module, test } from 'qunit';
+import { run } from '@ember/runloop';
 
 module('Unit | Mixin | proxy mixin', function() {
   const Proxy = ObjectProxy.extend(ProxyMixin);
@@ -46,7 +47,7 @@ module('Unit | Mixin | proxy mixin', function() {
 
     assert.equal(get(proxy,    'isDirty'), false, 'should be pristine');
 
-    set(proxy, 'author.firstName', 'James');
+    run(() => set(proxy, 'author.firstName', 'James'));
 
     assert.equal(get(proxy,    'isDirty'), true, 'should become dirty');
 
@@ -55,15 +56,21 @@ module('Unit | Mixin | proxy mixin', function() {
 
     proxy.discardBufferedChanges();
 
-    assert.equal(get(proxy,    'isDirty'), false, 'should become pristine');
-    assert.equal(get(proxy,    'author.firstName'), 'John', 'proxy should restore the original value');
+    run(() => {
+      assert.equal(get(proxy,    'isDirty'), false, 'should become pristine');
+      assert.equal(get(proxy,    'author.firstName'), 'John', 'proxy should restore the original value');
+    });
 
-    set(proxy, 'author.firstName', 'Zoe');
-    proxy.applyBufferedChanges();
+    run(() => {
+      set(proxy, 'author.firstName', 'Zoe');
+      proxy.applyBufferedChanges();
+    });
 
-    assert.equal(get(proxy,    'isDirty'), false, 'should become pristine again');
-    assert.equal(get(proxy,    'author.firstName'), 'Zoe', 'proxy should use the second value');
-    assert.equal(get(subject,  'author.firstName'), 'Zoe', 'subject should use the second value');
+    run(() => {
+      assert.equal(get(proxy,    'isDirty'), false, 'should become pristine again');
+      assert.equal(get(proxy,    'author.firstName'), 'Zoe', 'proxy should use the second value');
+      assert.equal(get(subject,  'author.firstName'), 'Zoe', 'subject should use the second value');
+    });
 
     let author = Proxy.create({ subject: { firstName: 'William' } });
     set(proxy, 'author', author);
@@ -79,7 +86,9 @@ module('Unit | Mixin | proxy mixin', function() {
 
     assert.equal(get(proxy,       'isDirty'), false, 'should be pristine');
 
-    A(get(proxy, 'tags')).addObject('cookies');
+    run(() => {
+      A(get(proxy, 'tags')).addObject('cookies');
+    });
 
     assert.equal(get(proxy,       'isDirty'), true, 'should become dirty');
 
@@ -88,16 +97,22 @@ module('Unit | Mixin | proxy mixin', function() {
 
     proxy.discardBufferedChanges();
 
-    assert.equal(get(proxy,       'isDirty'), false, 'should become pristine');
-    assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee'], 'proxy should restore the original value');
+    run(() => {
+      assert.equal(get(proxy,       'isDirty'), false, 'should become pristine');
+      assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee'], 'proxy should restore the original value');
+    });
 
-    A(get(proxy, 'tags')).removeObject('lifestyle');
-    proxy.applyBufferedChanges();
+    run(() => {
+      A(get(proxy, 'tags')).removeObject('lifestyle');
+      proxy.applyBufferedChanges();
+    });
 
-    assert.equal(get(proxy,       'isDirty'), false, 'should become pristine again');
-    assert.deepEqual(get(proxy,   'tags').toArray(), ['coffee'], 'proxy should use the second value');
-    assert.deepEqual(get(subject, 'tags').toArray(), ['coffee'], 'subject should use the second value');
-    
+    run(() => {
+      assert.equal(get(proxy,       'isDirty'), false, 'should become pristine again');
+      assert.deepEqual(get(proxy,   'tags').toArray(), ['coffee'], 'proxy should use the second value');
+      assert.deepEqual(get(subject, 'tags').toArray(), ['coffee'], 'subject should use the second value');
+    });
+
     let tags = ArrayProxy.create({ subject: ['plants', 'gardening'] });
 
     set(proxy, 'tags', tags);

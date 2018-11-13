@@ -5,6 +5,7 @@ import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { A } from '@ember/array';
 import { eq, isProxy, buildProxy } from './utils';
+import { once, cancel } from '@ember/runloop';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
 
@@ -21,8 +22,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     } else {
       let value = this._super(key);
       if (typeof value === 'object') {
-        value = buffer[key] = buildProxy(value);
-        this.notifyPropertyChange('childBuffers');
+        let proxy = buffer[key] = buildProxy(value);
+        if (proxy !== value) {
+          this.onceRun = once(this, this.notifyPropertyChange, 'childBuffers');
+        }
+        value = proxy;
       }
       return value;
     }
@@ -61,6 +65,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
 
   discardBufferedChanges() {
     this.notifyPropertyChange('buffer');
+  },
+
+  willDestroy() {
+    this._super(...arguments);
+    cancel(this.onceRun);
   }
 });
 
