@@ -6,6 +6,7 @@ import { computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy, getSubject, isProxy } from './utils';
 
+
 export const Mixin = EmberMixin.create(BaseMixin, {
 
   content: alias('buffer'),

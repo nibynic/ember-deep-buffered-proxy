@@ -1,6 +1,8 @@
 import ObjectProxy from '@ember/object/proxy';
 import { get, set } from '@ember/object';
 import { ProxyMixin } from 'ember-deep-buffered-proxy';
+import { ArrayProxy } from 'ember-deep-buffered-proxy';
+import { A } from '@ember/array';
 import { module, test } from 'qunit';
 
 module('Unit | Mixin | proxy mixin', function() {
@@ -67,5 +69,39 @@ module('Unit | Mixin | proxy mixin', function() {
     set(proxy, 'author', author);
 
     assert.equal(get(proxy,    'author'), author, 'should handle proxy objects passed to the setter');
+  });
+
+  test('it buffers nested arrays', function (assert) {
+    let subject = {
+      tags: ['lifestyle', 'coffee']
+    };
+    let proxy = Proxy.create({ subject: subject });
+
+    assert.equal(get(proxy,       'isDirty'), false, 'should be pristine');
+
+    A(get(proxy, 'tags')).addObject('cookies');
+
+    assert.equal(get(proxy,       'isDirty'), true, 'should become dirty');
+
+    assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee', 'cookies'], 'proxy should use the new value');
+    assert.deepEqual(get(subject, 'tags').toArray(), ['lifestyle', 'coffee'], 'subject should keep the original value');
+
+    proxy.discardBufferedChanges();
+
+    assert.equal(get(proxy,       'isDirty'), false, 'should become pristine');
+    assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee'], 'proxy should restore the original value');
+
+    A(get(proxy, 'tags')).removeObject('lifestyle');
+    proxy.applyBufferedChanges();
+
+    assert.equal(get(proxy,       'isDirty'), false, 'should become pristine again');
+    assert.deepEqual(get(proxy,   'tags').toArray(), ['coffee'], 'proxy should use the second value');
+    assert.deepEqual(get(subject, 'tags').toArray(), ['coffee'], 'subject should use the second value');
+    
+    let tags = ArrayProxy.create({ subject: ['plants', 'gardening'] });
+
+    set(proxy, 'tags', tags);
+
+    assert.equal(get(proxy,       'tags'), tags, 'should handle proxy objects passed to the setter');
   });
 });
