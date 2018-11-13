@@ -47,10 +47,6 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return A(Object.values(this.get('buffer')).filter(isProxy));
   }),
 
-  isDirty: computed('childBuffers.@each.isDirty', 'hasBufferedChanges', function() {
-    return this.get('hasBufferedChanges') || this.get('childBuffers').isAny('isDirty');
-  }),
-
   applyBufferedChanges() {
     this.get('childBuffers').invoke('applyBufferedChanges');
     let subject = this.get('subject');

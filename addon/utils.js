@@ -20,6 +20,14 @@ export function buildProxy(value) {
   return value;
 }
 
+export function getSubject(proxy) {
+  if (isProxy(proxy)) {
+    return proxy.get('subject');
+  } else {
+    return proxy;
+  }
+}
+
 
 function symbol() {
   return `__ember-deep-buffered-proxy__${Math.floor(Math.random() * +new Date())}`;

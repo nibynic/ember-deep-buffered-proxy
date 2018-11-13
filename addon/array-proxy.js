@@ -4,6 +4,7 @@ import EmberArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
 import { computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
+import { buildProxy, getSubject, isProxy } from './utils';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
 
@@ -13,9 +14,18 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return A(this.get('subject').slice());
   }),
 
+  objectAt(idx) {
+    let value = this._super(...arguments);
+    let proxy = buildProxy(value);
+    if (value !== proxy) {
+      this.replace(idx, 1, [proxy]);
+    }
+    return proxy;
+  },
+
   changes: computed('subject.[]', 'buffer.[]', function() {
     let subject = this.get('subject');
-    let buffer = this.get('buffer');
+    let buffer = this.get('buffer').map(getSubject);
     return {
       added:    buffer.filter((item) => !subject.includes(item)),
       removed:  subject.filter((item) => !buffer.includes(item))
@@ -27,8 +37,8 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return changes.added.length > 0 || changes.removed.length > 0;
   }),
 
-  isDirty: computed('hasBufferedChanges' /*, 'buffer.@each.isDirty'*/, function() {
-    return this.get('hasBufferedChanges') || this.get('buffer').isAny('isDirty');
+  childBuffers: computed('buffer.[]', function() {
+    return A(this.get('buffer').filter(isProxy));
   }),
 
   discardBufferedChanges() {
@@ -36,8 +46,10 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   },
 
   applyBufferedChanges() {
+    this.get('buffer').invoke('applyBufferedChanges');
+    let newValues = this.get('buffer').map(getSubject);
     let subject = this.get('subject');
-    A(subject).replace(0, subject.length, this.get('buffer'));
+    A(subject).replace(0, subject.length, newValues);
     this.notifyPropertyChange('buffer');
   }
 });
