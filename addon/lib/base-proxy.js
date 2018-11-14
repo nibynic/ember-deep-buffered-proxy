@@ -7,32 +7,42 @@ import { assert } from '@ember/debug';
 export const Mixin = EmberMixin.create({
   [IS_PROXY]: true,
 
-  isDirty: computed('childBuffers.@each.isDirty', 'hasBufferedChanges', function() {
-    return this.get('hasBufferedChanges') || this.get('childBuffers').isAny('isDirty');
+  hasChanges: computed('childBuffers.@each.hasChanges', 'hasLocalChanges', function() {
+    return this.get('hasLocalChanges') || this.get('childBuffers').isAny('hasChanges');
   }),
 
   childBuffers: computed(function() {
-    assert('childBuffers - this attribute has to be implemented in a sublass', false);
+    assert('childBuffers - this attribute has to be implemented in a subclass', false);
     return A();
   }),
 
-  changes: computed(function() {
-    assert('changes - this attribute has to be implemented in a sublass', false);
+  localChanges: computed(function() {
+    assert('localChanges - this attribute has to be implemented in a subclass', false);
     return {
       was: {},
       is: {}
     };
   }),
 
-  hasBufferedChanges: computed('changes', function() {
-    return Object.keys(this.get('changes.is')).length > 0;
+  hasLocalChanges: computed('localChanges', function() {
+    return Object.keys(this.get('localChanges.is')).length > 0;
   }),
 
-  applyBufferedChanges() {
-    assert('applyBufferedChanges - this method has to be implemented in a sublass', false);
+  applyLocalChanges() {
+    assert('applyLocalChanges - this method has to be implemented in a subclass', false);
   },
 
-  discardBufferedChanges() {
-    assert('discardBufferedChanges - this method has to be implemented in a sublass', false);
+  applyChanges() {
+    this.get('childBuffers').invoke('applyChanges');
+    this.applyLocalChanges();
+  },
+
+  discardLocalChanges() {
+    this.notifyPropertyChange('buffer');
+  },
+
+  discardChanges() {
+    this.get('childBuffers').invoke('discardChanges');
+    this.discardLocalChanges();
   }
 });

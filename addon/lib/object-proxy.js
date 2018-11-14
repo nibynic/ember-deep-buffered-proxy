@@ -40,10 +40,10 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     } else {
       buffer[key] = buildProxy(value);
     }
-    this.notifyPropertyChange('changes');
+    this.notifyPropertyChange('localChanges');
   },
 
-  changes: computed('buffer', function() {
+  localChanges: computed('buffer', function() {
     let map = { was: {}, is: {} };
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let oldValue = this.get(`subject.${key}`);
@@ -59,8 +59,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return A(Object.values(this.get('buffer')).filter(isProxy));
   }),
 
-  applyBufferedChanges() {
-    this.get('childBuffers').invoke('applyBufferedChanges');
+  applyLocalChanges() {
     let subject = this.get('subject');
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       if (isProxy(value)) {
@@ -68,10 +67,6 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       }
       set(subject, key, value);
     });
-    this.notifyPropertyChange('buffer');
-  },
-
-  discardBufferedChanges() {
     this.notifyPropertyChange('buffer');
   },
 

@@ -15,37 +15,37 @@ module('Unit | Mixin | object proxy', function() {
     };
     let proxy = Proxy.create({ subject: subject });
 
-    assert.equal(get(proxy,    'hasBufferedChanges'), false, 'should be pristine');
+    assert.equal(get(proxy,    'hasLocalChanges'), false, 'should be pristine');
 
     set(proxy, 'title', 'New title');
 
-    assert.equal(get(proxy,    'isDirty'), true, 'should become dirty');
+    assert.equal(get(proxy,    'hasChanges'), true, 'should become dirty');
     assert.equal(get(proxy,    'title'), 'New title', 'proxy should use the new value');
     assert.equal(get(subject,  'title'), 'Post title', 'subject should keep the original value');
-    assert.deepEqual(get(proxy, 'changes'), {
+    assert.deepEqual(get(proxy, 'localChanges'), {
       was:  { title: 'Post title' },
       is:   { title: 'New title' }
-    }, 'proxy should report changes');
+    }, 'proxy should report local changes');
 
-    proxy.discardBufferedChanges();
+    proxy.discardChanges();
 
-    assert.equal(get(proxy,    'isDirty'), false, 'should become pristine');
+    assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine');
     assert.equal(get(proxy,    'title'), 'Post title', 'proxy should restore the original value');
-    assert.deepEqual(get(proxy, 'changes'), {
+    assert.deepEqual(get(proxy, 'localChanges'), {
       was:  {},
       is:   {}
-    }, 'proxy should report no changes');
+    }, 'proxy should report no local changes');
 
     set(proxy, 'title', 'Second title');
-    proxy.applyBufferedChanges();
+    proxy.applyChanges();
 
-    assert.equal(get(proxy,    'isDirty'), false, 'should become pristine again');
+    assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine again');
     assert.equal(get(proxy,    'title'), 'Second title', 'proxy should use the second value');
     assert.equal(get(subject,  'title'), 'Second title', 'subject should use the second value');
-    assert.deepEqual(get(proxy, 'changes'), {
+    assert.deepEqual(get(proxy, 'localChanges'), {
       was:  { },
       is:   { }
-    }, 'proxy should report no changes again');
+    }, 'proxy should report no local changes again');
   });
 
 
@@ -57,33 +57,32 @@ module('Unit | Mixin | object proxy', function() {
     };
     let proxy = Proxy.create({ subject: subject });
 
-    assert.equal(get(proxy,    'isDirty'), false, 'should be pristine');
+    assert.equal(get(proxy,    'hasChanges'), false, 'should be pristine');
 
     run(() => set(proxy, 'author.firstName', 'James'));
 
-    assert.equal(get(proxy,    'isDirty'), true, 'should become dirty');
+    assert.equal(get(proxy,    'hasChanges'), true, 'should become dirty');
 
-    proxy.notifyPropertyChange('changes');
+    proxy.notifyPropertyChange('localChanges');
 
-    assert.equal(get(proxy,    'hasBufferedChanges'), false, 'should not detect any first-level changes');
-
+    assert.equal(get(proxy,    'hasLocalChanges'), false, 'should not detect any first-level localChanges');
     assert.equal(get(proxy,    'author.firstName'), 'James', 'proxy should use the new value');
     assert.equal(get(subject,  'author.firstName'), 'John', 'subject should keep the original value');
 
-    proxy.discardBufferedChanges();
+    proxy.discardChanges();
 
     run(() => {
-      assert.equal(get(proxy,    'isDirty'), false, 'should become pristine');
+      assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine');
       assert.equal(get(proxy,    'author.firstName'), 'John', 'proxy should restore the original value');
     });
 
     run(() => {
       set(proxy, 'author.firstName', 'Zoe');
-      proxy.applyBufferedChanges();
+      proxy.applyChanges();
     });
 
     run(() => {
-      assert.equal(get(proxy,    'isDirty'), false, 'should become pristine again');
+      assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine again');
       assert.equal(get(proxy,    'author.firstName'), 'Zoe', 'proxy should use the second value');
       assert.equal(get(subject,  'author.firstName'), 'Zoe', 'subject should use the second value');
     });
@@ -100,31 +99,31 @@ module('Unit | Mixin | object proxy', function() {
     };
     let proxy = Proxy.create({ subject: subject });
 
-    assert.equal(get(proxy,       'isDirty'), false, 'should be pristine');
+    assert.equal(get(proxy,       'hasChanges'), false, 'should be pristine');
 
     run(() => {
       A(get(proxy, 'tags')).addObject('cookies');
     });
 
-    assert.equal(get(proxy,       'isDirty'), true, 'should become dirty');
+    assert.equal(get(proxy,       'hasChanges'), true, 'should become dirty');
 
     assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee', 'cookies'], 'proxy should use the new value');
     assert.deepEqual(get(subject, 'tags').toArray(), ['lifestyle', 'coffee'], 'subject should keep the original value');
 
-    proxy.discardBufferedChanges();
+    proxy.discardChanges();
 
     run(() => {
-      assert.equal(get(proxy,       'isDirty'), false, 'should become pristine');
+      assert.equal(get(proxy,       'hasChanges'), false, 'should become pristine');
       assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee'], 'proxy should restore the original value');
     });
 
     run(() => {
       A(get(proxy, 'tags')).removeObject('lifestyle');
-      proxy.applyBufferedChanges();
+      proxy.applyChanges();
     });
 
     run(() => {
-      assert.equal(get(proxy,       'isDirty'), false, 'should become pristine again');
+      assert.equal(get(proxy,       'hasChanges'), false, 'should become pristine again');
       assert.deepEqual(get(proxy,   'tags').toArray(), ['coffee'], 'proxy should use the second value');
       assert.deepEqual(get(subject, 'tags').toArray(), ['coffee'], 'subject should use the second value');
     });
