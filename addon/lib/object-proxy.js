@@ -4,7 +4,7 @@ import { computed, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
-import { eq, isProxy, getSubject } from './internal/utils';
+import { eq, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
@@ -23,7 +23,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       let value = this._super(key);
       let proxy = buffer[key] = buildProxy(value);
       if (proxy !== value) {
-        this.onceRun = once(this, this.notifyPropertyChange, 'childBuffers');
+        this.onceRun = once(this, this.notifyPropertyChange, 'childProxies');
       }
       return proxy;
     }
@@ -62,10 +62,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   applyLocalChanges() {
     let subject = this.get('subject');
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
-      if (isProxy(value)) {
-        value = value.get('subject');
-      }
-      set(subject, key, value);
+      set(subject, key, getSubject(value));
     });
     this.notifyPropertyChange('buffer');
   },

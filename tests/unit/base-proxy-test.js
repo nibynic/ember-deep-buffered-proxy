@@ -23,19 +23,19 @@ module('Unit | Mixin | base proxy', function() {
       }
     });
 
-    assert.deepEqual(proxy.get('childBuffers'), [ author ], 'should return author');
+    assert.deepEqual(proxy.get('childProxies'), [ author ], 'should return author');
   });
 
   test('it observes changes in nested proxies', function (assert) {
     let proxy = Proxy.create({
-      childBuffers: [
+      childProxies: [
         { hasChanges: false }
       ]
     });
 
     assert.notOk(proxy.get('hasChanges'), 'should be false');
 
-    proxy.set('childBuffers.firstObject.hasChanges', true);
+    proxy.set('childProxies.firstObject.hasChanges', true);
 
     assert.ok(proxy.get('hasChanges'), 'shoud be true');
   });

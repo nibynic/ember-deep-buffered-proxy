@@ -25,7 +25,7 @@ export const Mixin = EmberMixin.create({
     return Object.keys(this.get('localChanges.is')).length > 0;
   }),
 
-  childBuffers: computed('buffer.[]', function() {
+  childProxies: computed('buffer.[]', function() {
     let list = A();
     this.eachBufferEntry((key, value) => {
       if (isProxy(value)) {
@@ -35,12 +35,12 @@ export const Mixin = EmberMixin.create({
     return list;
   }),
 
-  changes: computed('localChanges', 'childBuffers.@each.changes', function() {
+  changes: computed('localChanges', 'childProxies.@each.changes', function() {
     return this.groupChanges();
   }),
 
-  hasChanges: computed('childBuffers.@each.hasChanges', 'hasLocalChanges', function() {
-    return this.get('hasLocalChanges') || A(this.get('childBuffers')).isAny('hasChanges');
+  hasChanges: computed('childProxies.@each.hasChanges', 'hasLocalChanges', function() {
+    return this.get('hasLocalChanges') || A(this.get('childProxies')).isAny('hasChanges');
   }),
 
   applyLocalChanges() {
@@ -48,7 +48,7 @@ export const Mixin = EmberMixin.create({
   },
 
   applyChanges() {
-    A(this.get('childBuffers')).invoke('applyChanges');
+    A(this.get('childProxies')).invoke('applyChanges');
     this.applyLocalChanges();
   },
 
@@ -57,7 +57,7 @@ export const Mixin = EmberMixin.create({
   },
 
   discardChanges() {
-    A(this.get('childBuffers')).invoke('discardChanges');
+    A(this.get('childProxies')).invoke('discardChanges');
     this.discardLocalChanges();
   },
 
