@@ -35,12 +35,15 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   setUnknownProperty(key, value) {
     let buffer = this.get('buffer');
     let oldValue = this.get(`subject.${key}`);
-    if (eq(oldValue, value)) {
-      delete buffer[key];
-    } else {
-      buffer[key] = buildProxy(value);
+    if (!eq(buffer[key], value)) {
+      if (eq(oldValue, value)) {
+        delete buffer[key];
+      } else {
+        buffer[key] = buildProxy(value);
+      }
+      this.notifyPropertyChange(key);
+      this.notifyPropertyChange('localChanges');
     }
-    this.notifyPropertyChange('localChanges');
   },
 
   localChanges: computed('buffer', function() {
