@@ -1,5 +1,5 @@
-import ArrayProxy from './array-proxy';
-import Proxy from './proxy';
+import ArrayProxy from '../array-proxy';
+import ObjectProxy from '../object-proxy';
 import { isArray, A } from '@ember/array';
 import { IS_PROXY } from './symbols';
 
@@ -16,7 +16,7 @@ export function buildProxy(value) {
     if (isArray(value)) {
       value = ArrayProxy.create({ subject: A(value) });
     } else {
-      value = Proxy.create({ subject: value });
+      value = ObjectProxy.create({ subject: value });
     }
   }
   return value;

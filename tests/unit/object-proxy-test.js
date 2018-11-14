@@ -1,13 +1,13 @@
 import ObjectProxy from '@ember/object/proxy';
 import { get, set } from '@ember/object';
-import { ProxyMixin } from 'ember-deep-buffered-proxy';
+import { ObjectProxyMixin } from 'ember-deep-buffered-proxy';
 import { ArrayProxy } from 'ember-deep-buffered-proxy';
 import { A } from '@ember/array';
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
 
-module('Unit | Mixin | proxy mixin', function() {
-  const Proxy = ObjectProxy.extend(ProxyMixin);
+module('Unit | Mixin | object proxy', function() {
+  const Proxy = ObjectProxy.extend(ObjectProxyMixin);
 
   test('it buffers simple values', function (assert) {
     let subject = {

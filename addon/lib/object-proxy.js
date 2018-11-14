@@ -4,7 +4,7 @@ import { computed, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { A } from '@ember/array';
-import { eq, isProxy, buildProxy, getSubject } from './utils';
+import { eq, isProxy, buildProxy, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 
 export const Mixin = EmberMixin.create(BaseMixin, {

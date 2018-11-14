@@ -1,5 +1,5 @@
 import EmberMixin from '@ember/object/mixin';
-import { IS_PROXY } from './symbols';
+import { IS_PROXY } from './internal/symbols';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';

@@ -3,7 +3,7 @@ import { get, set } from '@ember/object';
 import { ArrayProxyMixin } from 'ember-deep-buffered-proxy';
 import { module, test } from 'qunit';
 
-module('Unit | Mixin | mixin', function() {
+module('Unit | Mixin | array proxy', function() {
   const Proxy = ArrayProxy.extend(ArrayProxyMixin);
 
   test('it buffers simple values', function (assert) {

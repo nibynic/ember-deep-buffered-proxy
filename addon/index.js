@@ -1,4 +1,4 @@
-export { Mixin as ProxyMixin } from './proxy';
-export { default as Proxy } from './proxy';
-export { Mixin as ArrayProxyMixin } from './array-proxy';
-export { default as ArrayProxy } from './array-proxy';
+export { Mixin as ObjectProxyMixin } from './lib/object-proxy';
+export { default as ObjectProxy } from './lib/object-proxy';
+export { Mixin as ArrayProxyMixin } from './lib/array-proxy';
+export { default as ArrayProxy } from './lib/array-proxy';
