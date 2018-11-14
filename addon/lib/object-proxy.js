@@ -3,8 +3,8 @@ import { Mixin as BaseMixin } from './base-proxy';
 import { computed, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
-import { A } from '@ember/array';
-import { eq, isProxy, buildProxy, getSubject } from './internal/utils';
+import { buildProxy } from './internal/build-proxy';
+import { eq, isProxy, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
@@ -55,9 +55,9 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return map;
   }),
 
-  childBuffers: computed('buffer', function() {
-    return A(Object.values(this.get('buffer')).filter(isProxy));
-  }),
+  eachBufferEntry(callback) {
+    Object.entries(this.get('buffer')).forEach(([k, v]) => callback(k, v));
+  },
 
   applyLocalChanges() {
     let subject = this.get('subject');

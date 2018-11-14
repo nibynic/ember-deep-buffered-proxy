@@ -4,7 +4,8 @@ import EmberArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
 import { computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
-import { buildProxy, getSubject, isProxy } from './internal/utils';
+import { buildProxy } from './internal/build-proxy';
+import { getSubject } from './internal/utils';
 
 
 export const Mixin = EmberMixin.create(BaseMixin, {
@@ -40,9 +41,9 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return map;
   }),
 
-  childBuffers: computed('buffer.[]', function() {
-    return A(this.get('buffer').filter(isProxy));
-  }),
+  eachBufferEntry(callback) {
+    this.get('buffer').forEach((v, i) => callback(i, v));
+  },
 
   applyLocalChanges() {
     let newValues = this.get('buffer').map(getSubject);
