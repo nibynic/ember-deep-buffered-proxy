@@ -27,15 +27,17 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   changes: computed('subject.[]', 'buffer.[]', function() {
     let subject = this.get('subject');
     let buffer = this.get('buffer').map(getSubject);
-    return {
+    let map = {
       added:    buffer.filter((item) => !subject.includes(item)),
-      removed:  subject.filter((item) => !buffer.includes(item))
+      removed:  subject.filter((item) => !buffer.includes(item)),
+      was:      [],
+      is:       []
     };
-  }),
-
-  hasBufferedChanges: computed('changes', function() {
-    let changes = this.get('changes');
-    return changes.added.length > 0 || changes.removed.length > 0;
+    if (map.added.length || map.removed.length) {
+      map.was = subject.slice();
+      map.is  = buffer;
+    }
+    return map;
   }),
 
   childBuffers: computed('buffer.[]', function() {

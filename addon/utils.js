@@ -4,7 +4,7 @@ import { isArray, A } from '@ember/array';
 import { IS_PROXY } from './symbols';
 
 export function eq(a, b) {
-  return a === b;
+  return getSubject(a) === getSubject(b);
 }
 
 export function isProxy(value) {

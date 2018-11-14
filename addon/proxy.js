@@ -4,7 +4,7 @@ import { computed, set } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { A } from '@ember/array';
-import { eq, isProxy, buildProxy } from './utils';
+import { eq, isProxy, buildProxy, getSubject } from './utils';
 import { once, cancel } from '@ember/runloop';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
@@ -40,11 +40,19 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     } else {
       buffer[key] = buildProxy(value);
     }
-    this.notifyPropertyChange('hasBufferedChanges');
+    this.notifyPropertyChange('changes');
   },
 
-  hasBufferedChanges: computed('buffer', function() {
-    return Object.keys(this.get('buffer')).length > 0;
+  changes: computed('buffer', function() {
+    let map = { was: {}, is: {} };
+    Object.entries(this.get('buffer')).forEach(([key, value]) => {
+      let oldValue = this.get(`subject.${key}`);
+      if (!eq(oldValue, value)) {
+        map.was[key]  = oldValue;
+        map.is[key]   = getSubject(value);
+      }
+    });
+    return map;
   }),
 
   childBuffers: computed('buffer', function() {

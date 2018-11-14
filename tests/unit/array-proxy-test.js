@@ -17,18 +17,45 @@ module('Unit | Mixin | mixin', function() {
     assert.equal(get(proxy,     'isDirty'), true, 'should become dirty');
     assert.deepEqual(get(proxy, 'content'), ['travel', 'nature', 'lifestyle'], 'proxy should use the new value');
     assert.deepEqual(subject,   ['travel', 'nature'], 'subject should keep the original value');
+    assert.deepEqual(get(proxy, 'changes'), {
+      was:      ['travel', 'nature'],
+      is:       ['travel', 'nature', 'lifestyle'],
+      added:    ['lifestyle'],
+      removed:  []
+    }, 'proxy should report changes');
 
     proxy.discardBufferedChanges();
 
     assert.equal(get(proxy,     'isDirty'), false, 'should become pristine');
     assert.deepEqual(get(proxy, 'content'), ['travel', 'nature'], 'proxy should restore the original value');
+    assert.deepEqual(get(proxy, 'changes'), {
+      was:      [],
+      is:       [],
+      added:    [],
+      removed:  []
+    }, 'proxy should report no changes');
 
-    proxy.pushObject('coffee');
+    proxy.removeObject('nature');
+
+    assert.deepEqual(get(proxy, 'changes'), {
+      was:      ['travel', 'nature'],
+      is:       ['travel'],
+      added:    [],
+      removed:  ['nature']
+    }, 'proxy should report removed objects');
+
     proxy.applyBufferedChanges();
 
     assert.equal(get(proxy,     'isDirty'), false, 'should become pristine again');
-    assert.deepEqual(get(proxy, 'content'), ['travel', 'nature', 'coffee'], 'proxy should use the second value');
-    assert.deepEqual(subject,   ['travel', 'nature', 'coffee'], 'subject should use the second value');
+    assert.deepEqual(get(proxy, 'content'), ['travel'], 'proxy should use the second value');
+    assert.deepEqual(subject,   ['travel'], 'subject should use the second value');
+
+    assert.deepEqual(get(proxy, 'changes'), {
+      was:      [],
+      is:       [],
+      added:    [],
+      removed:  []
+    }, 'proxy should report no changes again');
   });
 
   test('it buffers object values', function (assert) {

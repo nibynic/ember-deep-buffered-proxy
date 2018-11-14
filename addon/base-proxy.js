@@ -2,21 +2,37 @@ import EmberMixin from '@ember/object/mixin';
 import { IS_PROXY } from './symbols';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
+import { assert } from '@ember/debug';
 
 export const Mixin = EmberMixin.create({
   [IS_PROXY]: true,
-
-  childBuffers: computed(function() {
-    return A();
-  }),
 
   isDirty: computed('childBuffers.@each.isDirty', 'hasBufferedChanges', function() {
     return this.get('hasBufferedChanges') || this.get('childBuffers').isAny('isDirty');
   }),
 
-  hasBufferedChanges: false,
+  childBuffers: computed(function() {
+    assert('childBuffers - this attribute has to be implemented in a sublass', false);
+    return A();
+  }),
 
-  applyBufferedChanges() {},
+  changes: computed(function() {
+    assert('changes - this attribute has to be implemented in a sublass', false);
+    return {
+      was: {},
+      is: {}
+    };
+  }),
 
-  discardBufferedChanges() {}
+  hasBufferedChanges: computed('changes', function() {
+    return Object.keys(this.get('changes.is')).length > 0;
+  }),
+
+  applyBufferedChanges() {
+    assert('applyBufferedChanges - this method has to be implemented in a sublass', false);
+  },
+
+  discardBufferedChanges() {
+    assert('discardBufferedChanges - this method has to be implemented in a sublass', false);
+  }
 });
