@@ -21,14 +21,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       return buffer[key];
     } else {
       let value = this._super(key);
-      if (typeof value === 'object') {
-        let proxy = buffer[key] = buildProxy(value);
-        if (proxy !== value) {
-          this.onceRun = once(this, this.notifyPropertyChange, 'childBuffers');
-        }
-        value = proxy;
+      let proxy = buffer[key] = buildProxy(value);
+      if (proxy !== value) {
+        this.onceRun = once(this, this.notifyPropertyChange, 'childBuffers');
       }
-      return value;
+      return proxy;
     }
   },
 

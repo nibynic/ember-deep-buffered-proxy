@@ -8,11 +8,15 @@ export function eq(a, b) {
 }
 
 export function isProxy(value) {
-  return value && typeof value === 'object' && value[IS_PROXY];
+  return isProxyable(value) && value[IS_PROXY];
+}
+
+export function isProxyable(value) {
+  return value && ['Object', 'Class', 'Array'].includes(value.constructor.name)
 }
 
 export function buildProxy(value) {
-  if (value && typeof value === 'object' && !isProxy(value)) {
+  if (isProxyable(value) && !isProxy(value)) {
     if (isArray(value)) {
       value = ArrayProxy.create({ subject: A(value) });
     } else {
