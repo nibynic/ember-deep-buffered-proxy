@@ -59,10 +59,8 @@ module('Unit | Mixin | array proxy', function() {
   });
 
   test('it buffers object values', function (assert) {
-    let subject = [
-      { firstName: 'Joana' },
-      { firstName: 'Victor' }
-    ];
+    let person = { firstName: 'Joana' };
+    let subject = [ person ];
     let proxy = Proxy.create({ subject: subject });
 
     assert.equal(get(proxy,                 'hasChanges'), false, 'should be pristine');
@@ -72,11 +70,33 @@ module('Unit | Mixin | array proxy', function() {
     assert.equal(get(proxy,                 'hasChanges'), true, 'should become dirty');
     assert.deepEqual(get(proxy.objectAt(0), 'firstName'), 'Tilde', 'proxy should use the new value');
     assert.deepEqual(get(subject[0],        'firstName'), 'Joana', 'subject should keep the original value');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was:      [],
+      is:       [],
+      added:    [],
+      removed:  []
+    }, 'proxy should report no local changes');
+    assert.deepEqual(get(proxy, 'changes'), [{
+      subject: person,
+      was: {
+        firstName: 'Joana'
+      },
+      is: {
+        firstName: 'Tilde'
+      }
+    }], 'proxy should report nested objects changes');
 
     proxy.discardChanges();
 
     assert.equal(get(proxy,                  'hasChanges'), false, 'should become pristine');
     assert.deepEqual(get(proxy.objectAt(0),  'firstName'), 'Joana', 'proxy should restore the original value');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was:      [],
+      is:       [],
+      added:    [],
+      removed:  []
+    }, 'proxy should report no local changes');
+    assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes');
 
     proxy.objectAt(0).set('firstName', 'Max');
     proxy.applyChanges();
@@ -84,5 +104,12 @@ module('Unit | Mixin | array proxy', function() {
     assert.equal(get(proxy,                  'hasChanges'), false, 'should become pristine again');
     assert.deepEqual(get(proxy.objectAt(0),  'firstName'), 'Max', 'proxy should use the second value');
     assert.deepEqual(get(subject[0],         'firstName'), 'Max', 'subject should use the second value');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was:      [],
+      is:       [],
+      added:    [],
+      removed:  []
+    }, 'proxy should report no local changes again');
+    assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes again');
   });
 });

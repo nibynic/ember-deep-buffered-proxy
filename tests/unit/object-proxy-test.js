@@ -50,11 +50,8 @@ module('Unit | Mixin | object proxy', function() {
 
 
   test('it buffers nested objects', function (assert) {
-    let subject = {
-      author: {
-        firstName: 'John'
-      }
-    };
+    let author = { firstName: 'John' };
+    let subject = { author: author };
     let proxy = Proxy.create({ subject: subject });
 
     assert.equal(get(proxy,    'hasChanges'), false, 'should be pristine');
@@ -65,15 +62,33 @@ module('Unit | Mixin | object proxy', function() {
 
     proxy.notifyPropertyChange('localChanges');
 
-    assert.equal(get(proxy,    'hasLocalChanges'), false, 'should not detect any first-level localChanges');
+    assert.equal(get(proxy,    'hasLocalChanges'), false, 'should not detect any local changes');
     assert.equal(get(proxy,    'author.firstName'), 'James', 'proxy should use the new value');
     assert.equal(get(subject,  'author.firstName'), 'John', 'subject should keep the original value');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was: {},
+      is: {}
+    }, 'proxy should report no local changes');
+    assert.deepEqual(get(proxy, 'changes'), [{
+      subject: author,
+      was: {
+        firstName: 'John'
+      },
+      is: {
+        firstName: 'James'
+      }
+    }], 'proxy should report nested objects changes');
 
     proxy.discardChanges();
 
     run(() => {
       assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine');
       assert.equal(get(proxy,    'author.firstName'), 'John', 'proxy should restore the original value');
+      assert.deepEqual(get(proxy, 'localChanges'), {
+        was: {},
+        is: {}
+      }, 'proxy should report no local changes');
+      assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes');
     });
 
     run(() => {
@@ -85,18 +100,40 @@ module('Unit | Mixin | object proxy', function() {
       assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine again');
       assert.equal(get(proxy,    'author.firstName'), 'Zoe', 'proxy should use the second value');
       assert.equal(get(subject,  'author.firstName'), 'Zoe', 'subject should use the second value');
+      assert.deepEqual(get(proxy, 'localChanges'), {
+        was: {},
+        is: {}
+      }, 'proxy should report no local changes again');
+      assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes again');
     });
 
-    let author = Proxy.create({ subject: { firstName: 'William' } });
-    set(proxy, 'author', author);
+    let author2 = { firstName: 'William' };
+    let author2Proxy = Proxy.create({ subject: author2 });
+    set(proxy, 'author', author2Proxy);
 
-    assert.equal(get(proxy,    'author'), author, 'should handle proxy objects passed to the setter');
+    assert.equal(get(proxy,    'author'), author2Proxy, 'should handle proxy objects passed to the setter');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was: {
+        author: author
+      },
+      is: {
+        author: author2
+      }
+    }, 'proxy should report local changes');
+    assert.deepEqual(get(proxy, 'changes'), [{
+      subject: subject,
+      was: {
+        author: author
+      },
+      is: {
+        author: author2
+      }
+    }], 'proxy should report only local changes');
   });
 
   test('it buffers nested arrays', function (assert) {
-    let subject = {
-      tags: ['lifestyle', 'coffee']
-    };
+    let tags = ['lifestyle', 'coffee']
+    let subject = { tags: tags };
     let proxy = Proxy.create({ subject: subject });
 
     assert.equal(get(proxy,       'hasChanges'), false, 'should be pristine');
@@ -106,15 +143,30 @@ module('Unit | Mixin | object proxy', function() {
     });
 
     assert.equal(get(proxy,       'hasChanges'), true, 'should become dirty');
-
     assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee', 'cookies'], 'proxy should use the new value');
     assert.deepEqual(get(subject, 'tags').toArray(), ['lifestyle', 'coffee'], 'subject should keep the original value');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was: {},
+      is: {}
+    }, 'proxy should report no local changes');
+    assert.deepEqual(get(proxy, 'changes'), [{
+      subject: tags,
+      was:      ['lifestyle', 'coffee'],
+      is:       ['lifestyle', 'coffee', 'cookies'],
+      added:    ['cookies'],
+      removed:  []
+    }], 'proxy should report nested objects changes');
 
     proxy.discardChanges();
 
     run(() => {
       assert.equal(get(proxy,       'hasChanges'), false, 'should become pristine');
       assert.deepEqual(get(proxy,   'tags').toArray(), ['lifestyle', 'coffee'], 'proxy should restore the original value');
+      assert.deepEqual(get(proxy, 'localChanges'), {
+        was: {},
+        is: {}
+      }, 'proxy should report no local changes');
+      assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes');
     });
 
     run(() => {
@@ -126,12 +178,34 @@ module('Unit | Mixin | object proxy', function() {
       assert.equal(get(proxy,       'hasChanges'), false, 'should become pristine again');
       assert.deepEqual(get(proxy,   'tags').toArray(), ['coffee'], 'proxy should use the second value');
       assert.deepEqual(get(subject, 'tags').toArray(), ['coffee'], 'subject should use the second value');
+      assert.deepEqual(get(proxy, 'localChanges'), {
+        was: {},
+        is: {}
+      }, 'proxy should report no local changes again');
+      assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes again');
     });
 
-    let tags = ArrayProxy.create({ subject: ['plants', 'gardening'] });
+    let tags2 = ['plants', 'gardening'];
+    let tags2Proxy = ArrayProxy.create({ subject: tags2 });
+    set(proxy, 'tags', tags2Proxy);
 
-    set(proxy, 'tags', tags);
-
-    assert.equal(get(proxy,       'tags'), tags, 'should handle proxy objects passed to the setter');
+    assert.equal(get(proxy,       'tags'), tags2Proxy, 'should handle proxy objects passed to the setter');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was: {
+        tags: tags
+      },
+      is: {
+        tags: tags2
+      }
+    }, 'proxy should report local changes');
+    assert.deepEqual(get(proxy, 'changes'), [{
+      subject: subject,
+      was: {
+        tags: tags
+      },
+      is: {
+        tags: tags2
+      }
+    }], 'proxy should report only local changes');
   });
 });
