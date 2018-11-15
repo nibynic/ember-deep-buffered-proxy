@@ -5,7 +5,7 @@ import { A } from '@ember/array';
 import { computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy } from './internal/build-proxy';
-import { getSubject } from './internal/utils';
+import { getSubject, arrayDiff } from './internal/utils';
 
 
 export const Mixin = EmberMixin.create(BaseMixin, {
@@ -29,8 +29,8 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     let subject = this.get('subject');
     let buffer = this.get('buffer').map(getSubject);
     let map = {
-      added:    buffer.filter((item) => !subject.includes(item)),
-      removed:  subject.filter((item) => !buffer.includes(item)),
+      added:    arrayDiff(buffer, subject),
+      removed:  arrayDiff(subject, buffer),
       was:      [],
       is:       []
     };

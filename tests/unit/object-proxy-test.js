@@ -207,5 +207,19 @@ module('Unit | Mixin | object proxy', function() {
         tags: tags2
       }
     }], 'proxy should report only local changes');
+
+    let tags3 = tags.slice();
+    run(() => {
+      set(proxy, 'tags', tags3);
+    });
+
+    run(() => {
+      assert.deepEqual(get(proxy,       'tags.subject'), tags3, 'should handle objects passed to the setter');
+      assert.deepEqual(get(proxy, 'localChanges'), {
+        was: {},
+        is: {}
+      }, 'proxy should report no local changes');
+      assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no changes');
+    });
   });
 });

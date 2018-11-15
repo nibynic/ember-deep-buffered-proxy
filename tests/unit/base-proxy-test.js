@@ -133,6 +133,6 @@ module('Unit | Mixin | base proxy', function() {
           }
         }
       }
-    ], 'should return grouped changes')
+    ], 'should return grouped changes');
   });
 });

@@ -1,7 +1,18 @@
 import { IS_PROXY } from './symbols';
+import { isArray } from '@ember/array';
 
 export function eq(a, b) {
-  return getSubject(a) === getSubject(b);
+  a = getSubject(a);
+  b = getSubject(b);
+  if (isArray(a) && isArray(b)) {
+    return !arrayDiff(a, b).length && !arrayDiff(b, a).length;
+  } else {
+    return a === b;
+  }
+}
+
+export function arrayDiff(a, b) {
+  return a.filter((v) => !b.includes(v));
 }
 
 export function isProxy(value) {
