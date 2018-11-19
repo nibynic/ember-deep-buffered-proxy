@@ -1,6 +1,6 @@
 import EmberMixin from '@ember/object/mixin';
 import { Mixin as BaseMixin } from './base-proxy';
-import { computed, set } from '@ember/object';
+import { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
@@ -62,7 +62,9 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   applyLocalChanges() {
     let subject = this.get('subject');
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
-      set(subject, key, getSubject(value));
+      if (!eq(get(subject, key), value)) {
+        set(subject, key, getSubject(value));
+      }
     });
     this.notifyPropertyChange('buffer');
   },
