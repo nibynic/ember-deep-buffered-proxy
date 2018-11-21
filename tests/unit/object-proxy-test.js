@@ -17,7 +17,9 @@ module('Unit | Mixin | object proxy', function() {
 
     assert.equal(get(proxy,    'hasLocalChanges'), false, 'should be pristine');
 
-    set(proxy, 'title', 'New title');
+    run(() => {
+      set(proxy, 'title', 'New title');
+    });
 
     assert.equal(get(proxy,    'hasChanges'), true, 'should become dirty');
     assert.equal(get(proxy,    'title'), 'New title', 'proxy should use the new value');
@@ -27,7 +29,9 @@ module('Unit | Mixin | object proxy', function() {
       is:   { title: 'New title' }
     }, 'proxy should report local changes');
 
-    proxy.discardChanges();
+    run(() => {
+      proxy.discardChanges();
+    });
 
     assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine');
     assert.equal(get(proxy,    'title'), 'Post title', 'proxy should restore the original value');
@@ -36,8 +40,10 @@ module('Unit | Mixin | object proxy', function() {
       is:   {}
     }, 'proxy should report no local changes');
 
-    set(proxy, 'title', 'Second title');
-    proxy.applyChanges();
+    run(() => {
+      set(proxy, 'title', 'Second title');
+      proxy.applyChanges();
+    });
 
     assert.equal(get(proxy,    'hasChanges'), false, 'should become pristine again');
     assert.equal(get(proxy,    'title'), 'Second title', 'proxy should use the second value');
@@ -109,7 +115,9 @@ module('Unit | Mixin | object proxy', function() {
 
     let author2 = { firstName: 'William' };
     let author2Proxy = Proxy.create({ subject: author2 });
-    set(proxy, 'author', author2Proxy);
+    run(() => {
+      set(proxy, 'author', author2Proxy);
+    });
 
     assert.equal(get(proxy,    'author'), author2Proxy, 'should handle proxy objects passed to the setter');
     assert.deepEqual(get(proxy, 'localChanges'), {
@@ -187,7 +195,9 @@ module('Unit | Mixin | object proxy', function() {
 
     let tags2 = ['plants', 'gardening'];
     let tags2Proxy = ArrayProxy.create({ subject: tags2 });
-    set(proxy, 'tags', tags2Proxy);
+    run(() => {
+      set(proxy, 'tags', tags2Proxy);
+    });    
 
     assert.equal(get(proxy,       'tags'), tags2Proxy, 'should handle proxy objects passed to the setter');
     assert.deepEqual(get(proxy, 'localChanges'), {

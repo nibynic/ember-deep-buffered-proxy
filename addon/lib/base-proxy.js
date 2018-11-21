@@ -22,7 +22,7 @@ export const Mixin = EmberMixin.create({
   }),
 
   hasLocalChanges: computed('localChanges', function() {
-    return Object.keys(this.get('localChanges.is')).length > 0;
+    assert('hasLocalChanges - this attribute has to be implemented in a subclass', false);
   }),
 
   childProxies: computed('buffer.[]', function() {

@@ -11,7 +11,10 @@ module('Unit | Mixin | base proxy', function() {
     localChanges: computed(() => ({
       was: {},
       is: {}
-    }))
+    })),
+    hasLocalChanges: computed('localChanges', function() {
+      return Object.keys(this.get('localChanges.is')).length > 0;
+    })
   });
 
   test('it detects child proxies', function (assert) {

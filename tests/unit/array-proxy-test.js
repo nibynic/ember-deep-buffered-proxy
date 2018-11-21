@@ -2,6 +2,7 @@ import ArrayProxy from '@ember/array/proxy';
 import { get, set } from '@ember/object';
 import { ArrayProxyMixin } from 'ember-deep-buffered-proxy';
 import { module, test } from 'qunit';
+import { run } from '@ember/runloop';
 
 module('Unit | Mixin | array proxy', function() {
   const Proxy = ArrayProxy.extend(ArrayProxyMixin);
@@ -65,7 +66,9 @@ module('Unit | Mixin | array proxy', function() {
 
     assert.equal(get(proxy,                 'hasChanges'), false, 'should be pristine');
 
-    set(proxy.objectAt(0), 'firstName', 'Tilde');
+    run(() => {
+      set(proxy.objectAt(0), 'firstName', 'Tilde');
+    });
 
     assert.equal(get(proxy,                 'hasChanges'), true, 'should become dirty');
     assert.deepEqual(get(proxy.objectAt(0), 'firstName'), 'Tilde', 'proxy should use the new value');
@@ -98,8 +101,10 @@ module('Unit | Mixin | array proxy', function() {
     }, 'proxy should report no local changes');
     assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes');
 
-    proxy.objectAt(0).set('firstName', 'Max');
-    proxy.applyChanges();
+    run(() => {
+      proxy.objectAt(0).set('firstName', 'Max');
+      proxy.applyChanges();
+    });
 
     assert.equal(get(proxy,                  'hasChanges'), false, 'should become pristine again');
     assert.deepEqual(get(proxy.objectAt(0),  'firstName'), 'Max', 'proxy should use the second value');

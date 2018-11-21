@@ -6,6 +6,7 @@ import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
 import { eq, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
+import { classify } from '@ember/string';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
 
@@ -23,7 +24,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       let value = this._super(key);
       let proxy = buffer[key] = buildProxy(value);
       if (proxy !== value) {
-        this.onceRun = once(this, this.notifyPropertyChange, 'childProxies');
+        this.notifyOnce('childProxies');
       }
       return proxy;
     }
@@ -39,8 +40,17 @@ export const Mixin = EmberMixin.create(BaseMixin, {
         buffer[key] = buildProxy(value);
       }
       this.notifyPropertyChange(key);
-      this.notifyPropertyChange('localChanges');
+      this.notifyOnce('localChanges');
     }
+  },
+
+  notifyOnce(key) {
+    this.onceRuns = this.onceRuns || {};
+    let method = `notify${classify(key)}Change`;
+    this[method] = this[method] || function() {
+      this.notifyPropertyChange(key);
+    };
+    this.onceRuns[key] = once(this, this[method]);
   },
 
   localChanges: computed('buffer', function() {
@@ -53,6 +63,10 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       }
     });
     return map;
+  }),
+
+  hasLocalChanges: computed('localChanges', function() {
+    return Object.keys(this.get('localChanges.is')).length > 0;
   }),
 
   eachBufferEntry(callback) {
@@ -71,7 +85,9 @@ export const Mixin = EmberMixin.create(BaseMixin, {
 
   willDestroy() {
     this._super(...arguments);
-    cancel(this.onceRun);
+    Object.values(this.onceRuns).forEach((run) => {
+      cancel(run);
+    });
   }
 });
 

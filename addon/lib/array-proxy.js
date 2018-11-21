@@ -13,16 +13,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   content: alias('buffer'),
 
   buffer: computed('subject', function() {
-    return A(this.get('subject').slice());
+    return A(this.get('subject').map(buildProxy));
   }),
 
-  objectAt(idx) {
-    let value = this._super(...arguments);
-    let proxy = buildProxy(value);
-    if (value !== proxy) {
-      this.replace(idx, 1, [proxy]);
-    }
-    return proxy;
+  replaceContent(idx, amt, objects) {
+    return this._super(idx, amt, objects.map(buildProxy));
   },
 
   localChanges: computed('subject.[]', 'buffer.[]', function() {
@@ -39,6 +34,10 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       map.is  = buffer;
     }
     return map;
+  }),
+
+  hasLocalChanges: computed('localChanges', function() {
+    return this.get('localChanges.added.length') || this.get('localChanges.removed.length');
   }),
 
   eachBufferEntry(callback) {
