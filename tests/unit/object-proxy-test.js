@@ -5,6 +5,7 @@ import { ArrayProxy } from 'ember-deep-buffered-proxy';
 import { A } from '@ember/array';
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
+import sinon from 'sinon';
 
 module('Unit | Mixin | object proxy', function() {
   const Proxy = ObjectProxy.extend(ObjectProxyMixin);
@@ -197,7 +198,7 @@ module('Unit | Mixin | object proxy', function() {
     let tags2Proxy = ArrayProxy.create({ subject: tags2 });
     run(() => {
       set(proxy, 'tags', tags2Proxy);
-    });    
+    });
 
     assert.equal(get(proxy,       'tags'), tags2Proxy, 'should handle proxy objects passed to the setter');
     assert.deepEqual(get(proxy, 'localChanges'), {
@@ -231,5 +232,25 @@ module('Unit | Mixin | object proxy', function() {
       }, 'proxy should report no local changes');
       assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no changes');
     });
+  });
+
+  test('it buffers method calls', function (assert) {
+    let stub = sinon.stub();
+
+    let proxy = Proxy.create({
+      subject: {
+        deleteRecord: stub
+      }
+    });
+
+    run(() => {
+      proxy.set('markedForDeleteRecord', true);
+    });
+
+    assert.ok(stub.notCalled, 'should not call deleteRecord');
+
+    proxy.applyChanges();
+
+    assert.ok(stub.calledOnce, 'should call deleteRecord on applyChanges');
   });
 });

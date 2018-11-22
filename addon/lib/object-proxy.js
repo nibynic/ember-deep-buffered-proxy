@@ -6,7 +6,7 @@ import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
 import { eq, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
-import { classify } from '@ember/string';
+import { classify, camelize } from '@ember/string';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
 
@@ -76,7 +76,12 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   applyLocalChanges() {
     let subject = this.get('subject');
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
-      if (!eq(get(subject, key), value)) {
+      let matches = key.match(/^markedFor(.+)/);
+      if (matches) {
+        if (value) {
+          subject[camelize(matches[1])]();
+        }
+      } else if (!eq(get(subject, key), value)) {
         set(subject, key, getSubject(value));
       }
     });

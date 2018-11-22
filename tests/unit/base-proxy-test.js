@@ -40,7 +40,7 @@ module('Unit | Mixin | base proxy', function() {
 
     proxy.set('childProxies.firstObject.hasChanges', true);
 
-    assert.ok(proxy.get('hasChanges'), 'shoud be true');
+    assert.ok(proxy.get('hasChanges'), 'should be true');
   });
 
   test('it collects changes from nested proxies', function (assert) {
