@@ -12,12 +12,32 @@ export const Mixin = EmberMixin.create(BaseMixin, {
 
   content: alias('buffer'),
 
-  buffer: computed('subject', function() {
+  init() {
+    this._super(...arguments);
+    A(this.get('subject')).addArrayObserver(this, {
+      willChange: 'subjectWillChange',
+      didChange:  'subjectDidChange'
+    });
+  },
+
+  buffer: computed(function() {
     return A(this.get('subject').map(buildProxy));
   }),
 
   replaceContent(idx, amt, objects) {
     return this._super(idx, amt, objects.map(buildProxy));
+  },
+
+  subjectWillChange(subject, start, removeCount) {
+    let removed = subject.slice(start, start + removeCount);
+    removed.forEach((item) => {
+      let proxy = this.findBy('subject', item);
+      this.removeObject(proxy);
+    });
+  },
+
+  subjectDidChange(subject, start, removeCount, addCount) {
+    this.addObjects(subject.slice(start, start + addCount));
   },
 
   localChanges: computed('subject.[]', 'buffer.[]', function() {
@@ -49,6 +69,14 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     let subject = this.get('subject');
     A(subject).replace(0, get(subject, 'length'), newValues);
     this.notifyPropertyChange('buffer');
+  },
+
+  willDestroy() {
+    this._super(...arguments);
+    this.get('subject').removeArrayObserver(this, {
+      willChange: 'subjectWillChange',
+      didChange:  'subjectDidChange'
+    });
   }
 });
 

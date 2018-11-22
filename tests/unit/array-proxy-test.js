@@ -3,6 +3,7 @@ import { get, set } from '@ember/object';
 import { ArrayProxyMixin } from 'ember-deep-buffered-proxy';
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
+import { A } from '@ember/array';
 
 module('Unit | Mixin | array proxy', function() {
   const Proxy = ArrayProxy.extend(ArrayProxyMixin);
@@ -116,5 +117,37 @@ module('Unit | Mixin | array proxy', function() {
       removed:  []
     }, 'proxy should report no local changes again');
     assert.deepEqual(get(proxy, 'changes'), [], 'proxy should report no nested objects changes again');
+  });
+
+  test('it updates on subject changes', function (assert) {
+    let person1 = { firstName: 'Joana' };
+    let person2 = { firstName: 'Mike' };
+    let person3 = { firstName: 'Amelie' };
+    let subject = A([ person1 ]);
+    let proxy = Proxy.create({ subject: subject });
+
+    proxy.addObject(person2);
+
+    assert.deepEqual(proxy.mapBy('subject'), [person1, person2], 'should add person2');
+
+    subject.addObject(person3);
+
+    assert.deepEqual(proxy.mapBy('subject'), [person1, person2, person3], 'should add person3');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was:      [person1, person3],
+      is:       [person1, person2, person3],
+      added:    [person2],
+      removed:  []
+    }, 'should report local changes');
+
+    subject.removeObject(person1);
+
+    assert.deepEqual(proxy.mapBy('subject'), [person2, person3], 'should remove person1');
+    assert.deepEqual(get(proxy, 'localChanges'), {
+      was:      [person3],
+      is:       [person2, person3],
+      added:    [person2],
+      removed:  []
+    }, 'should report local changes');
   });
 });
