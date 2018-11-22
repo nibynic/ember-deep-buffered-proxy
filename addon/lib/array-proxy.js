@@ -57,7 +57,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   }),
 
   hasLocalChanges: computed('localChanges', function() {
-    return this.get('localChanges.added.length') || this.get('localChanges.removed.length');
+    return this.get('localChanges.added.length') > 0 || this.get('localChanges.removed.length') > 0;
   }),
 
   eachBufferEntry(callback) {
@@ -65,9 +65,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   },
 
   applyLocalChanges() {
-    let newValues = this.get('buffer').map(getSubject);
-    let subject = this.get('subject');
-    A(subject).replace(0, get(subject, 'length'), newValues);
+    if (this.get('hasLocalChanges')) {
+      let newValues = this.get('buffer').map(getSubject);
+      let subject = this.get('subject');
+      A(subject).replace(0, get(subject, 'length'), newValues);
+    }
     this.notifyPropertyChange('buffer');
   },
 
