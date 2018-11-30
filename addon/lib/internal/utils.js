@@ -1,5 +1,6 @@
 import { IS_PROXY } from './symbols';
 import { isArray } from '@ember/array';
+import EmberObject from '@ember/object';
 
 export function eq(a, b) {
   a = getSubject(a);
@@ -20,7 +21,11 @@ export function isProxy(value) {
 }
 
 export function isProxyable(value) {
-  return value && ['Object', 'Class', 'Array'].includes(value.constructor.name)
+  return value && (
+    isArray(value) ||                   // Array
+    value instanceof EmberObject ||     // EmberObject
+    value.constructor.name === 'Object' // POJO
+  );
 }
 
 export function getSubject(proxy) {
