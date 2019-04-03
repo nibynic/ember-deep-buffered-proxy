@@ -88,7 +88,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
         set(subject, key, getSubject(value));
       }
     });
-    methodsToCall.forEach((m) => m());
+    methodsToCall.forEach((m) => m.apply(subject));
     this.notifyPropertyChange('buffer');
   },
 
