@@ -16,6 +16,8 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return {};
   }),
 
+  onceRuns: null,
+
   unknownProperty(key) {
     let buffer = this.get('buffer');
     if (buffer.hasOwnProperty(key)) {
@@ -75,16 +77,18 @@ export const Mixin = EmberMixin.create(BaseMixin, {
 
   applyLocalChanges() {
     let subject = this.get('subject');
+    let methodsToCall = [];
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let matches = key.match(/^markedFor(.+)/);
       if (matches) {
         if (value) {
-          subject[camelize(matches[1])]();
+          methodsToCall.push(subject[camelize(matches[1])]);
         }
       } else if (!eq(get(subject, key), value)) {
         set(subject, key, getSubject(value));
       }
     });
+    methodsToCall.forEach((m) => m());
     this.notifyPropertyChange('buffer');
   },
 

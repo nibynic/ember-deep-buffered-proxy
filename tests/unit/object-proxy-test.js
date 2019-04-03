@@ -235,16 +235,21 @@ module('Unit | Mixin | object proxy', function() {
   });
 
   test('it buffers method calls', function (assert) {
-    let stub = sinon.stub();
+    let attributeOnDelete;
+    let stub = sinon.stub().callsFake(
+      () => attributeOnDelete = proxy.subject.attribute
+    );
 
     let proxy = Proxy.create({
       subject: {
+        attribute: 'before',
         deleteRecord: stub
       }
     });
 
     run(() => {
       proxy.set('markedForDeleteRecord', true);
+      proxy.set('attribute', 'after');
     });
 
     assert.ok(stub.notCalled, 'should not call deleteRecord');
@@ -252,5 +257,6 @@ module('Unit | Mixin | object proxy', function() {
     proxy.applyChanges();
 
     assert.ok(stub.calledOnce, 'should call deleteRecord on applyChanges');
+    assert.equal(attributeOnDelete, 'after', 'should call deleteRecord after all changes were applied');
   });
 });
