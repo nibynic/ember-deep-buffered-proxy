@@ -92,6 +92,12 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     this.notifyPropertyChange('buffer');
   },
 
+  discardLocalChanges() {
+    let keys = Object.keys(this.get('buffer'))
+    this._super(...arguments);
+    keys.forEach((k) => this.notifyPropertyChange(k));
+  },
+
   willDestroy() {
     this._super(...arguments);
     Object.values(this.onceRuns).forEach((run) => {

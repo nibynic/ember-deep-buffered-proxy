@@ -73,6 +73,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     this.notifyPropertyChange('buffer');
   },
 
+  discardLocalChanges() {
+    this._super(...arguments);
+    this.notifyPropertyChange('[]');
+  },
+
   willDestroy() {
     this._super(...arguments);
     this.get('subject').removeArrayObserver(this, {
