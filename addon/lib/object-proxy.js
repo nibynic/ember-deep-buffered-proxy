@@ -7,6 +7,7 @@ import { buildProxy } from './internal/build-proxy';
 import { eq, getSubject } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
+import { assert } from '@ember/debug';
 
 export const Mixin = EmberMixin.create(BaseMixin, {
 
@@ -81,8 +82,11 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let matches = key.match(/^markedFor(.+)/);
       if (matches) {
+        let methodName = camelize(matches[1]);
+        let method = subject[methodName];
         if (value) {
-          methodsToCall.push(subject[camelize(matches[1])]);
+          assert(`Proxy subject has ${matches[0]}=${value} but ${methodName} was not found on ${subject}`, method);
+          methodsToCall.push(method);
         }
       } else if (!eq(get(subject, key), value)) {
         set(subject, key, getSubject(value));
