@@ -258,5 +258,20 @@ module('Unit | Mixin | object proxy', function() {
 
     assert.ok(stub.calledOnce, 'should call deleteRecord on applyChanges');
     assert.equal(attributeOnDelete, 'after', 'should call deleteRecord after all changes were applied');
+
+    proxy = Proxy.create({
+      subject: {
+        content: {
+          deleteRecord: stub
+        }
+      }
+    });
+    stub.reset();
+    run(() => {
+      proxy.set('markedForDeleteRecord', true);
+    });
+    proxy.applyChanges();
+
+    assert.ok(stub.calledOnce, 'should find deleteRecord in subject content');
   });
 });

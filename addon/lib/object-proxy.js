@@ -82,17 +82,17 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let matches = key.match(/^markedFor(.+)/);
       if (matches) {
-        let methodName = camelize(matches[1]);
-        let method = subject[methodName];
         if (value) {
+          let methodName = camelize(matches[1]);
+          let [context, method] = findMethod(subject, methodName);
           assert(`Proxy subject has ${matches[0]}=${value} but ${methodName} was not found on ${subject}`, method);
-          methodsToCall.push(method);
+          methodsToCall.push([context, method]);
         }
       } else if (!eq(get(subject, key), value)) {
         set(subject, key, getSubject(value));
       }
     });
-    methodsToCall.forEach((m) => m.apply(subject));
+    methodsToCall.forEach(([c, m]) => m.apply(c));
     this.notifyPropertyChange('buffer');
   },
 
@@ -111,3 +111,15 @@ export const Mixin = EmberMixin.create(BaseMixin, {
 });
 
 export default EmberObjectProxy.extend(Mixin);
+
+function findMethod(context, name) {
+  if (context[name]) {
+    return [context, context[name]];
+  } else if ('content' in context) {
+    let content = get(context, 'content');
+    if (content) {
+      return findMethod(content, name);
+    }
+  }
+  return [];
+}
