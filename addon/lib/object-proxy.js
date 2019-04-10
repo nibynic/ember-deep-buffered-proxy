@@ -44,6 +44,7 @@ export const Mixin = EmberMixin.create(BaseMixin, {
       }
       this.notifyPropertyChange(key);
       this.notifyOnce('localChanges');
+      this.notifyOnce('childProxies');
     }
   },
 
