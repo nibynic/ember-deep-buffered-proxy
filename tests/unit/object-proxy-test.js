@@ -237,7 +237,7 @@ module('Unit | Mixin | object proxy', function() {
   test('it buffers method calls', function (assert) {
     let attributeOnDelete;
     let stub = sinon.stub().callsFake(
-      () => attributeOnDelete = proxy.subject.attribute
+      () => attributeOnDelete = proxy.get('subject.attribute')
     );
 
     let proxy = Proxy.create({
