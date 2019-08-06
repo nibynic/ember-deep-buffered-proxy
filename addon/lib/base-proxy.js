@@ -6,9 +6,7 @@ import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 
-export const Mixin = EmberMixin.create({
-  [IS_PROXY]: true,
-
+export const InternalMixin = EmberMixin.create({
   eachBufferEntry(/*callback*/) {
     assert('eachBufferEntry - this method has to be implemented in a subclass', false);
   },
@@ -35,12 +33,16 @@ export const Mixin = EmberMixin.create({
     return list;
   }),
 
-  changes: computed('localChanges', 'childProxies.@each.changes', function() {
+  childProxiesInternals: computed('childProxies.@each.dbp', function() {
+    return A(this.get('childProxies')).mapBy('dbp');
+  }),
+
+  changes: computed('localChanges', 'childProxiesInternals.@each.changes', function() {
     return this.groupChanges();
   }),
 
-  hasChanges: computed('childProxies.@each.hasChanges', 'hasLocalChanges', function() {
-    return this.get('hasLocalChanges') || A(this.get('childProxies')).isAny('hasChanges');
+  hasChanges: computed('childProxiesInternals.@each.hasChanges', 'hasLocalChanges', function() {
+    return this.get('hasLocalChanges') || A(this.get('childProxiesInternals')).isAny('hasChanges');
   }),
 
   applyLocalChanges() {
@@ -48,7 +50,7 @@ export const Mixin = EmberMixin.create({
   },
 
   applyChanges() {
-    A(this.get('childProxies')).invoke('applyChanges');
+    A(this.get('childProxiesInternals')).invoke('applyChanges');
     this.applyLocalChanges();
   },
 
@@ -57,7 +59,7 @@ export const Mixin = EmberMixin.create({
   },
 
   discardChanges() {
-    A(this.get('childProxies')).invoke('discardChanges');
+    A(this.get('childProxiesInternals')).invoke('discardChanges');
     this.discardLocalChanges();
   },
 
@@ -69,8 +71,8 @@ export const Mixin = EmberMixin.create({
     );
     let hasChanges = this.get('hasLocalChanges');
     this.eachBufferEntry((key, value) => {
-      if (isProxy(value) && value.get('hasChanges')) {
-        let nestedChanges = value.groupChanges(condition);
+      if (isProxy(value) && value.get('dbp.hasChanges')) {
+        let nestedChanges = value.get('dbp').groupChanges(condition);
         let subject = getSubject(value);
         if (!condition(subject)) {
           let subjectChange = nestedChanges.findBy('subject', subject);
@@ -89,4 +91,12 @@ export const Mixin = EmberMixin.create({
     }
     return allChanges;
   }
+});
+
+export const Mixin = EmberMixin.create({
+  [IS_PROXY]: true,
+
+  dbp: computed(function() {
+    assert('proxy getter - this attribute has to be implemented in a subclass', false);
+  })
 });

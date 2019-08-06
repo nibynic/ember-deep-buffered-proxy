@@ -1,17 +1,13 @@
-import EmberMixin from '@ember/object/mixin';
-import { Mixin as BaseMixin } from './base-proxy';
+import { Mixin as BaseMixin, InternalMixin as BaseInternalMixin } from './base-proxy';
 import EmberArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
-import { get, computed } from '@ember/object';
+import EmberObject, { get, computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy } from './internal/build-proxy';
 import { getSubject, arrayDiff } from './internal/utils';
 
 
-export const Mixin = EmberMixin.create(BaseMixin, {
-
-  content: alias('buffer'),
-
+const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   init() {
     this._super(...arguments);
     A(this.get('subject')).addArrayObserver(this, {
@@ -24,20 +20,17 @@ export const Mixin = EmberMixin.create(BaseMixin, {
     return A(this.get('subject').map(buildProxy));
   }),
 
-  replaceContent(idx, amt, objects) {
-    return this._super(idx, amt, objects.map(buildProxy));
-  },
-
   subjectWillChange(subject, start, removeCount) {
     let removed = subject.slice(start, start + removeCount);
+    let buffer = this.get('buffer');
     removed.forEach((item) => {
-      let proxy = this.findBy('subject', item);
-      this.removeObject(proxy);
+      let proxy = buffer.findBy('dbp.subject', item);
+      buffer.removeObject(proxy);
     });
   },
 
   subjectDidChange(subject, start, removeCount, addCount) {
-    this.addObjects(subject.slice(start, start + addCount));
+    this.get('buffer').addObjects(subject.slice(start, start + addCount).map(buildProxy));
   },
 
   localChanges: computed('subject.[]', 'buffer.[]', function() {
@@ -87,4 +80,16 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   }
 });
 
-export default EmberArrayProxy.extend(Mixin);
+const ArrayProxy = EmberArrayProxy.extend(BaseMixin, {
+  content: alias('dbp.buffer'),
+
+  replaceContent(idx, amt, objects) {
+    return this._super(idx, amt, objects.map(buildProxy));
+  }
+});
+
+export default function(subject) {
+  return ArrayProxy.create({
+    dbp: ProxyInternal.create({ subject: A(subject) })
+  });
+}

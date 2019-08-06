@@ -1,6 +1,5 @@
-import EmberMixin from '@ember/object/mixin';
-import { Mixin as BaseMixin } from './base-proxy';
-import { computed, set, get } from '@ember/object';
+import { Mixin as BaseMixin, InternalMixin as BaseInternalMixin } from './base-proxy';
+import EmberObject, { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
@@ -9,44 +8,13 @@ import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
 
-export const Mixin = EmberMixin.create(BaseMixin, {
-
-  subject: alias('content'),
+const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
   buffer: computed('subject', function() {
     return {};
   }),
 
   onceRuns: null,
-
-  unknownProperty(key) {
-    let buffer = this.get('buffer');
-    if (buffer.hasOwnProperty(key)) {
-      return buffer[key];
-    } else {
-      let value = this._super(key);
-      let proxy = buffer[key] = buildProxy(value);
-      if (proxy !== value) {
-        this.notifyOnce('childProxies');
-      }
-      return proxy;
-    }
-  },
-
-  setUnknownProperty(key, value) {
-    let buffer = this.get('buffer');
-    let oldValue = this.get(`subject.${key}`);
-    if (!eq(buffer[key], value)) {
-      if (eq(oldValue, value)) {
-        delete buffer[key];
-      } else {
-        buffer[key] = buildProxy(value);
-      }
-      this.notifyPropertyChange(key);
-      this.notifyOnce('localChanges');
-      this.notifyOnce('childProxies');
-    }
-  },
 
   notifyOnce(key) {
     this.onceRuns = this.onceRuns || {};
@@ -111,7 +79,44 @@ export const Mixin = EmberMixin.create(BaseMixin, {
   }
 });
 
-export default EmberObjectProxy.extend(Mixin);
+const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
+  content: alias('dbp.subject'),
+
+  unknownProperty(key) {
+    let buffer = this.get('dbp.buffer');
+    if (buffer.hasOwnProperty(key)) {
+      return buffer[key];
+    } else {
+      let value = this._super(key);
+      let proxy = buffer[key] = buildProxy(value);
+      if (proxy !== value) {
+        this.get('dbp').notifyOnce('childProxies');
+      }
+      return proxy;
+    }
+  },
+
+  setUnknownProperty(key, value) {
+    let buffer = this.get('dbp.buffer');
+    let oldValue = this.get(`dbp.subject.${key}`);
+    if (!eq(buffer[key], value)) {
+      if (eq(oldValue, value)) {
+        delete buffer[key];
+      } else {
+        buffer[key] = buildProxy(value);
+      }
+      this.get('dbp').notifyPropertyChange(key);
+      this.get('dbp').notifyOnce('localChanges');
+      this.get('dbp').notifyOnce('childProxies');
+    }
+  }
+});
+
+export default function(subject) {
+  return ObjectProxy.create({
+    dbp: ProxyInternal.create({ subject })
+  });
+}
 
 function findMethod(context, name) {
   if (context[name]) {

@@ -30,7 +30,7 @@ export function isProxyable(value) {
 
 export function getSubject(proxy) {
   if (isProxy(proxy)) {
-    return proxy.get('subject');
+    return proxy.get('dbp.subject');
   } else {
     return proxy;
   }
