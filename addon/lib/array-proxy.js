@@ -4,46 +4,46 @@ import { A } from '@ember/array';
 import EmberObject, { get, computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy } from './internal/build-proxy';
-import { getSubject, arrayDiff } from './internal/utils';
+import { getcontent, arrayDiff } from './internal/utils';
 
 
 const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   init() {
     this._super(...arguments);
-    A(this.get('subject')).addArrayObserver(this, {
-      willChange: 'subjectWillChange',
-      didChange:  'subjectDidChange'
+    A(this.get('content')).addArrayObserver(this, {
+      willChange: 'contentWillChange',
+      didChange:  'contentDidChange'
     });
   },
 
   buffer: computed(function() {
-    return A(this.get('subject').map(buildProxy));
+    return A(this.get('content').map(buildProxy));
   }),
 
-  subjectWillChange(subject, start, removeCount) {
-    let removed = subject.slice(start, start + removeCount);
+  contentWillChange(content, start, removeCount) {
+    let removed = content.slice(start, start + removeCount);
     let buffer = this.get('buffer');
     removed.forEach((item) => {
-      let proxy = buffer.findBy('dbp.subject', item);
+      let proxy = buffer.findBy('dbp.content', item);
       buffer.removeObject(proxy);
     });
   },
 
-  subjectDidChange(subject, start, removeCount, addCount) {
-    this.get('buffer').addObjects(subject.slice(start, start + addCount).map(buildProxy));
+  contentDidChange(content, start, removeCount, addCount) {
+    this.get('buffer').addObjects(content.slice(start, start + addCount).map(buildProxy));
   },
 
-  localChanges: computed('subject.[]', 'buffer.[]', function() {
-    let subject = this.get('subject');
-    let buffer = this.get('buffer').map(getSubject);
+  localChanges: computed('content.[]', 'buffer.[]', function() {
+    let content = this.get('content');
+    let buffer = this.get('buffer').map(getcontent);
     let map = {
-      added:    arrayDiff(buffer, subject),
-      removed:  arrayDiff(subject, buffer),
+      added:    arrayDiff(buffer, content),
+      removed:  arrayDiff(content, buffer),
       was:      [],
       is:       []
     };
     if (map.added.length || map.removed.length) {
-      map.was = subject.slice();
+      map.was = content.slice();
       map.is  = buffer;
     }
     return map;
@@ -59,9 +59,9 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
   applyLocalChanges() {
     if (this.get('hasLocalChanges')) {
-      let newValues = this.get('buffer').map(getSubject);
-      let subject = this.get('subject');
-      A(subject).replace(0, get(subject, 'length'), newValues);
+      let newValues = this.get('buffer').map(getcontent);
+      let content = this.get('content');
+      A(content).replace(0, get(content, 'length'), newValues);
     }
     this.notifyPropertyChange('buffer');
   },
@@ -73,9 +73,9 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
   willDestroy() {
     this._super(...arguments);
-    this.get('subject').removeArrayObserver(this, {
-      willChange: 'subjectWillChange',
-      didChange:  'subjectDidChange'
+    this.get('content').removeArrayObserver(this, {
+      willChange: 'contentWillChange',
+      didChange:  'contentDidChange'
     });
   }
 });
@@ -88,8 +88,8 @@ const ArrayProxy = EmberArrayProxy.extend(BaseMixin, {
   }
 });
 
-export default function(subject) {
+export default function(content) {
   return ArrayProxy.create({
-    dbp: ProxyInternal.create({ subject: A(subject) })
+    dbp: ProxyInternal.create({ content: A(content) })
   });
 }

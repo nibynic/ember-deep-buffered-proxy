@@ -1,6 +1,6 @@
 import EmberMixin from '@ember/object/mixin';
 import { IS_PROXY } from './internal/symbols';
-import { isProxy, getSubject } from './internal/utils';
+import { isProxy, getcontent } from './internal/utils';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -66,20 +66,20 @@ export const InternalMixin = EmberMixin.create({
   groupChanges(condition = () => true) {
     let allChanges = A();
     let localChanges = assign(
-      { subject: this.get('subject') },
+      { content: this.get('content') },
       this.get('localChanges')
     );
     let hasChanges = this.get('hasLocalChanges');
     this.eachBufferEntry((key, value) => {
       if (isProxy(value) && value.get('dbp.hasChanges')) {
         let nestedChanges = value.get('dbp').groupChanges(condition);
-        let subject = getSubject(value);
-        if (!condition(subject)) {
-          let subjectChange = nestedChanges.findBy('subject', subject);
-          if (subjectChange) {
-            nestedChanges.removeObject(subjectChange);
-            localChanges.was[key] = subjectChange.was;
-            localChanges.is[key]  = subjectChange.is;
+        let content = getcontent(value);
+        if (!condition(content)) {
+          let contentChange = nestedChanges.findBy('content', content);
+          if (contentChange) {
+            nestedChanges.removeObject(contentChange);
+            localChanges.was[key] = contentChange.was;
+            localChanges.is[key]  = contentChange.is;
             hasChanges = true;
           }
         }

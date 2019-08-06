@@ -6,8 +6,8 @@ import { A } from '@ember/array';
 
 module('Unit | Mixin | array proxy', function() {
   test('it buffers simple values', function (assert) {
-    let subject = ['travel', 'nature'];
-    let proxy = buildArrayProxy(subject);
+    let content = ['travel', 'nature'];
+    let proxy = buildArrayProxy(content);
 
     assert.equal(get(proxy,     'dbp.hasChanges'), false, 'should be pristine');
 
@@ -15,7 +15,7 @@ module('Unit | Mixin | array proxy', function() {
 
     assert.equal(get(proxy,     'dbp.hasChanges'), true, 'should become dirty');
     assert.deepEqual(get(proxy, 'content'), ['travel', 'nature', 'lifestyle'], 'proxy should use the new value');
-    assert.deepEqual(subject,   ['travel', 'nature'], 'subject should keep the original value');
+    assert.deepEqual(content,   ['travel', 'nature'], 'content should keep the original value');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      ['travel', 'nature'],
       is:       ['travel', 'nature', 'lifestyle'],
@@ -47,7 +47,7 @@ module('Unit | Mixin | array proxy', function() {
 
     assert.equal(get(proxy,     'dbp.hasChanges'), false, 'should become pristine again');
     assert.deepEqual(get(proxy, 'content'), ['travel'], 'proxy should use the second value');
-    assert.deepEqual(subject,   ['travel'], 'subject should use the second value');
+    assert.deepEqual(content,   ['travel'], 'content should use the second value');
 
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      [],
@@ -59,8 +59,8 @@ module('Unit | Mixin | array proxy', function() {
 
   test('it buffers object values', function (assert) {
     let person = { firstName: 'Joana' };
-    let subject = [ person ];
-    let proxy = buildArrayProxy(subject);
+    let content = [ person ];
+    let proxy = buildArrayProxy(content);
 
     assert.equal(get(proxy,                 'dbp.hasChanges'), false, 'should be pristine');
 
@@ -70,7 +70,7 @@ module('Unit | Mixin | array proxy', function() {
 
     assert.equal(get(proxy,                 'dbp.hasChanges'), true, 'should become dirty');
     assert.deepEqual(get(proxy.objectAt(0), 'firstName'), 'Tilde', 'proxy should use the new value');
-    assert.deepEqual(get(subject[0],        'firstName'), 'Joana', 'subject should keep the original value');
+    assert.deepEqual(get(content[0],        'firstName'), 'Joana', 'content should keep the original value');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      [],
       is:       [],
@@ -78,7 +78,7 @@ module('Unit | Mixin | array proxy', function() {
       removed:  []
     }, 'proxy should report no local changes');
     assert.deepEqual(get(proxy, 'dbp.changes'), [{
-      subject: person,
+      content: person,
       was: {
         firstName: 'Joana'
       },
@@ -106,7 +106,7 @@ module('Unit | Mixin | array proxy', function() {
 
     assert.equal(get(proxy,                  'dbp.hasChanges'), false, 'should become pristine again');
     assert.deepEqual(get(proxy.objectAt(0),  'firstName'), 'Max', 'proxy should use the second value');
-    assert.deepEqual(get(subject[0],         'firstName'), 'Max', 'subject should use the second value');
+    assert.deepEqual(get(content[0],         'firstName'), 'Max', 'content should use the second value');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      [],
       is:       [],
@@ -116,20 +116,20 @@ module('Unit | Mixin | array proxy', function() {
     assert.deepEqual(get(proxy, 'dbp.changes'), [], 'proxy should report no nested objects changes again');
   });
 
-  test('it updates on subject changes', function (assert) {
+  test('it updates on content changes', function (assert) {
     let person1 = { firstName: 'Joana' };
     let person2 = { firstName: 'Mike' };
     let person3 = { firstName: 'Amelie' };
-    let subject = A([ person1 ]);
-    let proxy = buildArrayProxy(subject);
+    let content = A([ person1 ]);
+    let proxy = buildArrayProxy(content);
 
     proxy.addObject(person2);
 
-    assert.deepEqual(proxy.mapBy('dbp.subject'), [person1, person2], 'should add person2');
+    assert.deepEqual(proxy.mapBy('dbp.content'), [person1, person2], 'should add person2');
 
-    subject.addObject(person3);
+    content.addObject(person3);
 
-    assert.deepEqual(proxy.mapBy('dbp.subject'), [person1, person2, person3], 'should add person3');
+    assert.deepEqual(proxy.mapBy('dbp.content'), [person1, person2, person3], 'should add person3');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      [person1, person3],
       is:       [person1, person2, person3],
@@ -137,9 +137,9 @@ module('Unit | Mixin | array proxy', function() {
       removed:  []
     }, 'should report local changes');
 
-    subject.removeObject(person1);
+    content.removeObject(person1);
 
-    assert.deepEqual(proxy.mapBy('dbp.subject'), [person2, person3], 'should remove person1');
+    assert.deepEqual(proxy.mapBy('dbp.content'), [person2, person3], 'should remove person1');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:      [person3],
       is:       [person2, person3],

@@ -3,14 +3,14 @@ import EmberObject, { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
-import { eq, getSubject } from './internal/utils';
+import { eq, getcontent } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
 
 const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
-  buffer: computed('subject', function() {
+  buffer: computed('content', function() {
     return {};
   }),
 
@@ -28,10 +28,10 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   localChanges: computed('buffer', function() {
     let map = { was: {}, is: {} };
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
-      let oldValue = this.get(`subject.${key}`);
+      let oldValue = this.get(`content.${key}`);
       if (!eq(oldValue, value)) {
         map.was[key]  = oldValue;
-        map.is[key]   = getSubject(value);
+        map.is[key]   = getcontent(value);
       }
     });
     return map;
@@ -46,19 +46,19 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   },
 
   applyLocalChanges() {
-    let subject = this.get('subject');
+    let content = this.get('content');
     let methodsToCall = [];
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let matches = key.match(/^markedFor(.+)/);
       if (matches) {
         if (value) {
           let methodName = camelize(matches[1]);
-          let [context, method] = findMethod(subject, methodName);
-          assert(`Proxy subject has ${matches[0]}=${value} but ${methodName} was not found on ${subject}`, method);
+          let [context, method] = findMethod(content, methodName);
+          assert(`Proxy content has ${matches[0]}=${value} but ${methodName} was not found on ${content}`, method);
           methodsToCall.push([context, method]);
         }
-      } else if (!eq(get(subject, key), value)) {
-        set(subject, key, getSubject(value));
+      } else if (!eq(get(content, key), value)) {
+        set(content, key, getcontent(value));
       }
     });
     methodsToCall.forEach(([c, m]) => m.apply(c));
@@ -80,7 +80,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 });
 
 const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
-  content: alias('dbp.subject'),
+  content: alias('dbp.content'),
 
   unknownProperty(key) {
     let buffer = this.get('dbp.buffer');
@@ -98,7 +98,7 @@ const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
 
   setUnknownProperty(key, value) {
     let buffer = this.get('dbp.buffer');
-    let oldValue = this.get(`dbp.subject.${key}`);
+    let oldValue = this.get(`dbp.content.${key}`);
     if (!eq(buffer[key], value)) {
       if (eq(oldValue, value)) {
         delete buffer[key];
@@ -112,9 +112,9 @@ const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
   }
 });
 
-export default function(subject) {
+export default function(content) {
   return ObjectProxy.create({
-    dbp: ProxyInternal.create({ subject })
+    dbp: ProxyInternal.create({ content })
   });
 }
 

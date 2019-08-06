@@ -49,16 +49,16 @@ module('Unit | Mixin | base proxy', function() {
 
   test('it collects changes from nested proxies', function (assert) {
     let proxy = buildProxy({
-      subject: 'subject-1-savable',
+      content: 'content-1-savable',
 
       buffer: {
         title: 'My last blog post',
 
         author: buildProxy({
-          subject: 'subject-2',
+          content: 'content-2',
           buffer: {
             photo: buildProxy({
-              subject: 'subject-3',
+              content: 'content-3',
               localChanges: {
                 was:  { url: '1.jpg' },
                 is:   { url: '2.jpg' }
@@ -72,10 +72,10 @@ module('Unit | Mixin | base proxy', function() {
         }),
 
         reviewer: buildProxy({
-          subject: 'subject-4-savable',
+          content: 'content-4-savable',
           buffer: {
             photo: buildProxy({
-              subject: 'subject-5',
+              content: 'content-5',
               localChanges: {
                 was:  { url: '3.jpg' },
                 is:   { url: '4.jpg' }
@@ -100,15 +100,15 @@ module('Unit | Mixin | base proxy', function() {
     });
 
     assert.deepEqual(proxy.get('dbp.changes'), [
-      { subject: 'subject-3', was: { url: '1.jpg' }, is: { url: '2.jpg' } },
-      { subject: 'subject-2', was: { firstName: 'John' }, is: { firstName: 'Jamie' } },
-      { subject: 'subject-5', was: { url: '3.jpg' }, is: { url: '4.jpg' } },
-      { subject: 'subject-1-savable', was: { title: 'My first blog post' }, is: { title: 'My last blog post' } }
+      { content: 'content-3', was: { url: '1.jpg' }, is: { url: '2.jpg' } },
+      { content: 'content-2', was: { firstName: 'John' }, is: { firstName: 'Jamie' } },
+      { content: 'content-5', was: { url: '3.jpg' }, is: { url: '4.jpg' } },
+      { content: 'content-1-savable', was: { title: 'My first blog post' }, is: { title: 'My last blog post' } }
     ], 'should return all changed proxies');
 
-    assert.deepEqual(proxy.get('dbp').groupChanges((subject) => subject.match('savable')), [
+    assert.deepEqual(proxy.get('dbp').groupChanges((content) => content.match('savable')), [
       {
-        subject: 'subject-4-savable',
+        content: 'content-4-savable',
         was: {
           photo: {
             url: '3.jpg'
@@ -120,7 +120,7 @@ module('Unit | Mixin | base proxy', function() {
           }
         }
       }, {
-        subject: 'subject-1-savable',
+        content: 'content-1-savable',
         was: {
           title: 'My first blog post',
           author: {
