@@ -1,4 +1,3 @@
-import { IS_PROXY } from './symbols';
 import { isArray } from '@ember/array';
 import EmberObject from '@ember/object';
 
@@ -17,7 +16,7 @@ export function arrayDiff(a, b) {
 }
 
 export function isProxy(value) {
-  return isProxyable(value) && value[IS_PROXY];
+  return isProxyable(value) && 'dbp' in value;
 }
 
 export function isProxyable(value) {
