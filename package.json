@@ -1,11 +1,11 @@
 {
   "name": "ember-deep-buffered-proxy",
-  "version": "0.0.0",
-  "description": "The default blueprint for ember-cli addons.",
+  "version": "0.0.1",
+  "description": "Change buffering proxy for Ember Objects, arrays, promises",
   "keywords": [
-    "ember-addon"
+    "ember-addon", "proxy", "buffer", "changeset", "fork"
   ],
-  "repository": "",
+  "repository": "https://github.com/nibynic/ember-deep-buffered-proxy.git",
   "license": "MIT",
   "author": "",
   "directories": {

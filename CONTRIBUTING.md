@@ -2,15 +2,15 @@
 
 ## Installation
 
-* `git clone <repository-url>`
-* `cd my-addon`
-* `npm install`
+* `git clone git@github.com:nibynic/ember-deep-buffered-proxy.git`
+* `cd ember-deep-buffered-proxy`
+* `yarn`
 
 ## Linting
 
-* `npm run lint:hbs`
-* `npm run lint:js`
-* `npm run lint:js -- --fix`
+* `yarn run lint:hbs`
+* `yarn run lint:js`
+* `yarn run lint:js --fix`
 
 ## Running tests
 
