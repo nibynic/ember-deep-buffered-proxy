@@ -3,7 +3,7 @@ import EmberObject, { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
 import { buildProxy } from './internal/build-proxy';
-import { eq, getcontent } from './internal/utils';
+import { eq, getContent } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
@@ -31,7 +31,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
       let oldValue = this.get(`content.${key}`);
       if (!eq(oldValue, value)) {
         map.was[key]  = oldValue;
-        map.is[key]   = getcontent(value);
+        map.is[key]   = getContent(value);
       }
     });
     return map;
@@ -58,7 +58,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
           methodsToCall.push([context, method]);
         }
       } else if (!eq(get(content, key), value)) {
-        set(content, key, getcontent(value));
+        set(content, key, getContent(value));
       }
     });
     methodsToCall.forEach(([c, m]) => m.apply(c));

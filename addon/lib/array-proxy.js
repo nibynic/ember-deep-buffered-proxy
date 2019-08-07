@@ -4,7 +4,7 @@ import { A } from '@ember/array';
 import EmberObject, { get, computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy } from './internal/build-proxy';
-import { getcontent, arrayDiff } from './internal/utils';
+import { getContent, arrayDiff } from './internal/utils';
 
 
 const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
@@ -35,7 +35,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
   localChanges: computed('content.[]', 'buffer.[]', function() {
     let content = this.get('content');
-    let buffer = this.get('buffer').map(getcontent);
+    let buffer = this.get('buffer').map(getContent);
     let map = {
       added:    arrayDiff(buffer, content),
       removed:  arrayDiff(content, buffer),
@@ -59,7 +59,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
   applyLocalChanges() {
     if (this.get('hasLocalChanges')) {
-      let newValues = this.get('buffer').map(getcontent);
+      let newValues = this.get('buffer').map(getContent);
       let content = this.get('content');
       A(content).replace(0, get(content, 'length'), newValues);
     }

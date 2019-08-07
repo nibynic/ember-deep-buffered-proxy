@@ -1,6 +1,6 @@
 import EmberMixin from '@ember/object/mixin';
 import { IS_PROXY } from './internal/symbols';
-import { isProxy, getcontent } from './internal/utils';
+import { isProxy, getContent } from './internal/utils';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
@@ -73,7 +73,7 @@ export const InternalMixin = EmberMixin.create({
     this.eachBufferEntry((key, value) => {
       if (isProxy(value) && value.get('dbp.hasChanges')) {
         let nestedChanges = value.get('dbp').groupChanges(condition);
-        let content = getcontent(value);
+        let content = getContent(value);
         if (!condition(content)) {
           let contentChange = nestedChanges.findBy('content', content);
           if (contentChange) {

@@ -3,8 +3,8 @@ import { isArray } from '@ember/array';
 import EmberObject from '@ember/object';
 
 export function eq(a, b) {
-  a = getcontent(a);
-  b = getcontent(b);
+  a = getContent(a);
+  b = getContent(b);
   if (isArray(a) && isArray(b)) {
     return !arrayDiff(a, b).length && !arrayDiff(b, a).length;
   } else {
@@ -28,7 +28,7 @@ export function isProxyable(value) {
   );
 }
 
-export function getcontent(proxy) {
+export function getContent(proxy) {
   if (isProxy(proxy)) {
     return proxy.get('dbp.content');
   } else {
