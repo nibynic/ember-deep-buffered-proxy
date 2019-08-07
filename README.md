@@ -1,6 +1,8 @@
 Ember Deep Buffered Proxy
 ==============================================================================
 
+[![Build Status](https://travis-ci.org/nibynic/ember-deep-buffered-proxy.svg?branch=master)](https://travis-ci.org/nibynic/ember-deep-buffered-proxy)
+
 Wrap your data in a proxy that buffers all changes - meaning that you can control
 when and whether they get applied on source data.
 
