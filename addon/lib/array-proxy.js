@@ -1,4 +1,4 @@
-import { Mixin as BaseMixin, InternalMixin as BaseInternalMixin } from './base-proxy';
+import BaseMixin from './base-proxy';
 import EmberArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
 import EmberObject, { get, computed } from '@ember/object';
@@ -7,7 +7,7 @@ import { buildProxy } from './internal/build-proxy';
 import { getContent, arrayDiff } from './internal/utils';
 import config from './internal/config';
 
-const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
+const ProxyInternal = EmberObject.extend(BaseMixin, {
   init() {
     this._super(...arguments);
     A(this.get('content')).addArrayObserver(this, {
@@ -80,7 +80,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   }
 });
 
-const ArrayProxy = EmberArrayProxy.extend(BaseMixin, {
+const ArrayProxy = EmberArrayProxy.extend({
   content: alias(`${config.namespace}.buffer`),
 
   replaceContent(idx, amt, objects) {

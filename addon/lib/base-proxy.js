@@ -1,4 +1,4 @@
-import EmberMixin from '@ember/object/mixin';
+import Mixin from '@ember/object/mixin';
 import { isProxy, getContent } from './internal/utils';
 import { computed } from '@ember/object';
 import { A } from '@ember/array';
@@ -6,7 +6,7 @@ import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import config from './internal/config';
 
-export const InternalMixin = EmberMixin.create({
+export default Mixin.create({
   eachBufferEntry(/*callback*/) {
     assert('eachBufferEntry - this method has to be implemented in a subclass', false);
   },
@@ -91,10 +91,4 @@ export const InternalMixin = EmberMixin.create({
     }
     return allChanges;
   }
-});
-
-export const Mixin = EmberMixin.create({
-  [config.namespace]: computed(function() {
-    assert('proxy getter - this attribute has to be implemented in a subclass', false);
-  })
 });

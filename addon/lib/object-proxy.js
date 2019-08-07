@@ -1,4 +1,4 @@
-import { Mixin as BaseMixin, InternalMixin as BaseInternalMixin } from './base-proxy';
+import BaseMixin from './base-proxy';
 import EmberObject, { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
@@ -9,7 +9,7 @@ import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
 import config from './internal/config';
 
-const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
+const ProxyInternal = EmberObject.extend(BaseMixin, {
 
   buffer: computed('content', function() {
     return {};
@@ -90,8 +90,10 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   }
 });
 
-const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
+const ObjectProxy = EmberObjectProxy.extend({
   content: alias(`${config.namespace}.content`),
+
+  [config.namespace]: null,
 
   unknownProperty(key) {
     let buffer = this.get(`${config.namespace}.buffer`);

@@ -1,9 +1,9 @@
 import EmberObject, { computed } from '@ember/object';
-import { InternalMixin, Mixin } from 'ember-deep-buffered-proxy/lib/base-proxy';
+import BaseMixin from 'ember-deep-buffered-proxy/lib/base-proxy';
 import { module, test } from 'qunit';
 
 module('Unit | Mixin | base proxy', function() {
-  const InternalProxy = EmberObject.extend(InternalMixin, {
+  const InternalProxy = EmberObject.extend(BaseMixin, {
     buffer: computed(() => ({})),
     eachBufferEntry(callback) {
       Object.entries(this.get('buffer')).forEach(([k, v]) => callback(k, v));
@@ -16,9 +16,8 @@ module('Unit | Mixin | base proxy', function() {
       return Object.keys(this.get('localChanges.is')).length > 0;
     })
   });
-  const Proxy = EmberObject.extend(Mixin);
   function buildProxy(attrs = {}) {
-    return Proxy.create({ dbp: InternalProxy.create(attrs) });
+    return EmberObject.create({ dbp: InternalProxy.create(attrs) });
   }
 
   test('it detects child proxies', function (assert) {
