@@ -7,6 +7,7 @@ import { eq, getContent } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
+import config from './internal/config';
 
 const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 
@@ -15,6 +16,16 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   }),
 
   onceRuns: null,
+
+  notifyAfterGet() {
+    this.notifyOnce('childProxies');
+  },
+
+  notifyAfterSet(key) {
+    this.notifyPropertyChange(key);
+    this.notifyOnce('localChanges');
+    this.notifyOnce('childProxies');
+  },
 
   notifyOnce(key) {
     this.onceRuns = this.onceRuns || {};
@@ -80,41 +91,39 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 });
 
 const ObjectProxy = EmberObjectProxy.extend(BaseMixin, {
-  content: alias('dbp.content'),
+  content: alias(`${config.namespace}.content`),
 
   unknownProperty(key) {
-    let buffer = this.get('dbp.buffer');
+    let buffer = this.get(`${config.namespace}.buffer`);
     if (buffer.hasOwnProperty(key)) {
       return buffer[key];
     } else {
       let value = this._super(key);
       let proxy = buffer[key] = buildProxy(value);
       if (proxy !== value) {
-        this.get('dbp').notifyOnce('childProxies');
+        this.get(config.namespace).notifyAfterGet();
       }
       return proxy;
     }
   },
 
   setUnknownProperty(key, value) {
-    let buffer = this.get('dbp.buffer');
-    let oldValue = this.get(`dbp.content.${key}`);
+    let buffer = this.get(`${config.namespace}.buffer`);
+    let oldValue = this.get(`${config.namespace}.content.${key}`);
     if (!eq(buffer[key], value)) {
       if (eq(oldValue, value)) {
         delete buffer[key];
       } else {
         buffer[key] = buildProxy(value);
       }
-      this.get('dbp').notifyPropertyChange(key);
-      this.get('dbp').notifyOnce('localChanges');
-      this.get('dbp').notifyOnce('childProxies');
+      this.get(config.namespace).notifyAfterSet(key);
     }
   }
 });
 
 export default function(content) {
   return ObjectProxy.create({
-    dbp: ProxyInternal.create({ content })
+    [config.namespace]: ProxyInternal.create({ content })
   });
 }
 

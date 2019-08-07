@@ -69,6 +69,25 @@ buffer.dbp.hasChanges; // false
 ```
 
 
+### Namespace
+
+To prevent attribute name collision, all buffer methods and attributes are wrapped
+inside an object that is available under `dbp` key. If you don't like this name,
+you can set your own namespace in the [configuration](#configuration).
+
+
+### Configuration
+
+To override default configuration just define your settings in `config/environment.js`
+under `deepBufferedProxy` key. These are all available options:
+
+```javascript
+{
+  namespace: 'dbp' // key under which buffer methods and attributes are available
+}
+```
+
+
 Contributing
 ------------------------------------------------------------------------------
 

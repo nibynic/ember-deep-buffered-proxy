@@ -4,6 +4,7 @@ import { computed } from '@ember/object';
 import { A } from '@ember/array';
 import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
+import config from './internal/config';
 
 export const InternalMixin = EmberMixin.create({
   eachBufferEntry(/*callback*/) {
@@ -32,8 +33,8 @@ export const InternalMixin = EmberMixin.create({
     return list;
   }),
 
-  childProxiesInternals: computed('childProxies.@each.dbp', function() {
-    return A(this.get('childProxies')).mapBy('dbp');
+  childProxiesInternals: computed(`childProxies.@each.${config.namespace}`, function() {
+    return A(this.get('childProxies')).mapBy(config.namespace);
   }),
 
   changes: computed('localChanges', 'childProxiesInternals.@each.changes', function() {
@@ -70,8 +71,8 @@ export const InternalMixin = EmberMixin.create({
     );
     let hasChanges = this.get('hasLocalChanges');
     this.eachBufferEntry((key, value) => {
-      if (isProxy(value) && value.get('dbp.hasChanges')) {
-        let nestedChanges = value.get('dbp').groupChanges(condition);
+      if (isProxy(value) && value.get(`${config.namespace}.hasChanges`)) {
+        let nestedChanges = value.get(config.namespace).groupChanges(condition);
         let content = getContent(value);
         if (!condition(content)) {
           let contentChange = nestedChanges.findBy('content', content);
@@ -93,7 +94,7 @@ export const InternalMixin = EmberMixin.create({
 });
 
 export const Mixin = EmberMixin.create({
-  dbp: computed(function() {
+  [config.namespace]: computed(function() {
     assert('proxy getter - this attribute has to be implemented in a subclass', false);
   })
 });

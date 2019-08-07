@@ -1,5 +1,6 @@
 import { isArray } from '@ember/array';
 import EmberObject from '@ember/object';
+import config from './config';
 
 export function eq(a, b) {
   a = getContent(a);
@@ -16,7 +17,7 @@ export function arrayDiff(a, b) {
 }
 
 export function isProxy(value) {
-  return isProxyable(value) && 'dbp' in value;
+  return isProxyable(value) && config.namespace in value;
 }
 
 export function isProxyable(value) {
@@ -29,7 +30,7 @@ export function isProxyable(value) {
 
 export function getContent(proxy) {
   if (isProxy(proxy)) {
-    return proxy.get('dbp.content');
+    return proxy.get(`${config.namespace}.content`);
   } else {
     return proxy;
   }

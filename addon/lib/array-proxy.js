@@ -5,7 +5,7 @@ import EmberObject, { get, computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import { buildProxy } from './internal/build-proxy';
 import { getContent, arrayDiff } from './internal/utils';
-
+import config from './internal/config';
 
 const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
   init() {
@@ -24,7 +24,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
     let removed = content.slice(start, start + removeCount);
     let buffer = this.get('buffer');
     removed.forEach((item) => {
-      let proxy = buffer.findBy('dbp.content', item);
+      let proxy = buffer.findBy(`${config.namespace}.content`, item);
       buffer.removeObject(proxy);
     });
   },
@@ -81,7 +81,7 @@ const ProxyInternal = EmberObject.extend(BaseInternalMixin, {
 });
 
 const ArrayProxy = EmberArrayProxy.extend(BaseMixin, {
-  content: alias('dbp.buffer'),
+  content: alias(`${config.namespace}.buffer`),
 
   replaceContent(idx, amt, objects) {
     return this._super(idx, amt, objects.map(buildProxy));
@@ -90,6 +90,6 @@ const ArrayProxy = EmberArrayProxy.extend(BaseMixin, {
 
 export default function(content) {
   return ArrayProxy.create({
-    dbp: ProxyInternal.create({ content: A(content) })
+    [config.namespace]: ProxyInternal.create({ content: A(content) })
   });
 }
