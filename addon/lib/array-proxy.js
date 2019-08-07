@@ -1,13 +1,13 @@
-import BaseMixin from './base-proxy';
+import { DriverMixin, ClassMixin } from './base-proxy';
 import EmberArrayProxy from '@ember/array/proxy';
 import { A } from '@ember/array';
 import EmberObject, { get, computed } from '@ember/object';
 import { alias } from '@ember/object/computed';
-import { buildProxy } from './internal/build-proxy';
+import buildProxy from './internal/build-proxy';
 import { getContent, arrayDiff } from './internal/utils';
 import config from './internal/config';
 
-const ProxyInternal = EmberObject.extend(BaseMixin, {
+const Driver = EmberObject.extend(DriverMixin, {
   init() {
     this._super(...arguments);
     A(this.get('content')).addArrayObserver(this, {
@@ -17,7 +17,7 @@ const ProxyInternal = EmberObject.extend(BaseMixin, {
   },
 
   buffer: computed(function() {
-    return A(this.get('content').map(buildProxy));
+    return A(this.get('content').map((i) => buildProxy(i, this.options)));
   }),
 
   contentWillChange(content, start, removeCount) {
@@ -30,7 +30,7 @@ const ProxyInternal = EmberObject.extend(BaseMixin, {
   },
 
   contentDidChange(content, start, removeCount, addCount) {
-    this.get('buffer').addObjects(content.slice(start, start + addCount).map(buildProxy));
+    this.get('buffer').addObjects(content.slice(start, start + addCount).map((i) => buildProxy(i, this.options)));
   },
 
   localChanges: computed('content.[]', 'buffer.[]', function() {
@@ -80,16 +80,10 @@ const ProxyInternal = EmberObject.extend(BaseMixin, {
   }
 });
 
-const ArrayProxy = EmberArrayProxy.extend({
+export default EmberArrayProxy.extend({
   content: alias(`${config.namespace}.buffer`),
 
   replaceContent(idx, amt, objects) {
-    return this._super(idx, amt, objects.map(buildProxy));
+    return this._super(idx, amt, objects.map((i) => buildProxy(i, this.get(`${config.namespace}.options`))));
   }
-});
-
-export default function(content) {
-  return ArrayProxy.create({
-    [config.namespace]: ProxyInternal.create({ content: A(content) })
-  });
-}
+}).reopenClass(ClassMixin, { Driver });

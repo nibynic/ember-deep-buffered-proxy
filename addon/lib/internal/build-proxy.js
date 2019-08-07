@@ -1,15 +1,18 @@
-import buildArrayProxy from '../array-proxy';
-import buildObjectProxy from '../object-proxy';
+import ArrayProxy from '../array-proxy';
+import ObjectProxy from '../object-proxy';
 import { isArray } from '@ember/array';
 import { isProxy, isProxyable } from './utils';
+import { assign } from '@ember/polyfills';
 
-export function buildProxy(value) {
-  if (isProxyable(value) && !isProxy(value)) {
-    if (isArray(value)) {
-      value = buildArrayProxy(value);
-    } else {
-      value = buildObjectProxy(value);
+export default function(content, options = {}) {
+  let optionsWithDefaults = assign({
+    proxyClassFor(obj) {
+      return isArray(obj) ? ArrayProxy : ObjectProxy;
     }
+  }, options);
+
+  if (isProxyable(content) && !isProxy(content)) {
+    return optionsWithDefaults.proxyClassFor(content).wrap(content, options);
   }
-  return value;
+  return content;
 }

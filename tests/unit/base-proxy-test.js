@@ -1,23 +1,25 @@
 import EmberObject, { computed } from '@ember/object';
-import BaseMixin from 'ember-deep-buffered-proxy/lib/base-proxy';
+import { DriverMixin, ClassMixin } from 'ember-deep-buffered-proxy/lib/base-proxy';
 import { module, test } from 'qunit';
 
 module('Unit | Mixin | base proxy', function() {
-  const InternalProxy = EmberObject.extend(BaseMixin, {
-    buffer: computed(() => ({})),
-    eachBufferEntry(callback) {
-      Object.entries(this.get('buffer')).forEach(([k, v]) => callback(k, v));
-    },
-    localChanges: computed(() => ({
-      was: {},
-      is: {}
-    })),
-    hasLocalChanges: computed('localChanges', function() {
-      return Object.keys(this.get('localChanges.is')).length > 0;
+  const Proxy = EmberObject.extend({}).reopenClass(ClassMixin, {
+    Driver: EmberObject.extend(DriverMixin, {
+      buffer: computed(() => ({})),
+      eachBufferEntry(callback) {
+        Object.entries(this.get('buffer')).forEach(([k, v]) => callback(k, v));
+      },
+      localChanges: computed(() => ({
+        was: {},
+        is: {}
+      })),
+      hasLocalChanges: computed('localChanges', function() {
+        return Object.keys(this.get('localChanges.is')).length > 0;
+      })
     })
   });
   function buildProxy(attrs = {}) {
-    return EmberObject.create({ dbp: InternalProxy.create(attrs) });
+    return Proxy.create({ dbp: Proxy.Driver.create(attrs) });
   }
 
   test('it detects child proxies', function (assert) {

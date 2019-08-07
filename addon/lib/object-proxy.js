@@ -1,15 +1,15 @@
-import BaseMixin from './base-proxy';
+import { DriverMixin, ClassMixin } from './base-proxy';
 import EmberObject, { computed, set, get } from '@ember/object';
 import { alias } from '@ember/object/computed';
 import EmberObjectProxy from '@ember/object/proxy';
-import { buildProxy } from './internal/build-proxy';
+import buildProxy from './internal/build-proxy';
 import { eq, getContent } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
 import { classify, camelize } from '@ember/string';
 import { assert } from '@ember/debug';
 import config from './internal/config';
 
-const ProxyInternal = EmberObject.extend(BaseMixin, {
+const Driver = EmberObject.extend(DriverMixin, {
 
   buffer: computed('content', function() {
     return {};
@@ -90,7 +90,7 @@ const ProxyInternal = EmberObject.extend(BaseMixin, {
   }
 });
 
-const ObjectProxy = EmberObjectProxy.extend({
+export default EmberObjectProxy.extend({
   content: alias(`${config.namespace}.content`),
 
   [config.namespace]: null,
@@ -101,7 +101,7 @@ const ObjectProxy = EmberObjectProxy.extend({
       return buffer[key];
     } else {
       let value = this._super(key);
-      let proxy = buffer[key] = buildProxy(value);
+      let proxy = buffer[key] = buildProxy(value, this.get(`${config.namespace}.options`));
       if (proxy !== value) {
         this.get(config.namespace).notifyAfterGet();
       }
@@ -116,18 +116,12 @@ const ObjectProxy = EmberObjectProxy.extend({
       if (eq(oldValue, value)) {
         delete buffer[key];
       } else {
-        buffer[key] = buildProxy(value);
+        buffer[key] = buildProxy(value, this.get(`${config.namespace}.options`));
       }
       this.get(config.namespace).notifyAfterSet(key);
     }
   }
-});
-
-export default function(content) {
-  return ObjectProxy.create({
-    [config.namespace]: ProxyInternal.create({ content })
-  });
-}
+}).reopenClass(ClassMixin, { Driver });
 
 function findMethod(context, name) {
   if (context[name]) {

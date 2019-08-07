@@ -1,5 +1,5 @@
-import buildObjectProxy from 'ember-deep-buffered-proxy/lib/object-proxy';
-import buildArrayProxy from 'ember-deep-buffered-proxy/lib/array-proxy';
+import ObjectProxy from 'ember-deep-buffered-proxy/lib/object-proxy';
+import ArrayProxy from 'ember-deep-buffered-proxy/lib/array-proxy';
 import { get, set } from '@ember/object';
 import { A } from '@ember/array';
 import { module, test } from 'qunit';
@@ -7,6 +7,14 @@ import { run } from '@ember/runloop';
 import sinon from 'sinon';
 
 module('Unit | Mixin | object proxy', function() {
+
+  function buildArrayProxy(content) {
+    return ArrayProxy.create({ dbp: ArrayProxy.Driver.create({ content }) });
+  }
+  function buildObjectProxy(content) {
+    return ObjectProxy.create({ dbp: ObjectProxy.Driver.create({ content }) });
+  }
+
   test('it buffers simple values', function (assert) {
     let content = {
       title: 'Post title'

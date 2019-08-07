@@ -1,10 +1,15 @@
 import { get, set } from '@ember/object';
-import buildArrayProxy from 'ember-deep-buffered-proxy/lib/array-proxy';
+import ArrayProxy from 'ember-deep-buffered-proxy/lib/array-proxy';
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
 import { A } from '@ember/array';
 
 module('Unit | Mixin | array proxy', function() {
+
+  function buildArrayProxy(content) {
+    return ArrayProxy.create({ dbp: ArrayProxy.Driver.create({ content }) });
+  }
+
   test('it buffers simple values', function (assert) {
     let content = ['travel', 'nature'];
     let proxy = buildArrayProxy(content);

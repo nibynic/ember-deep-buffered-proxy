@@ -6,7 +6,7 @@ import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import config from './internal/config';
 
-export default Mixin.create({
+export const DriverMixin = Mixin.create({
   eachBufferEntry(/*callback*/) {
     assert('eachBufferEntry - this method has to be implemented in a subclass', false);
   },
@@ -90,5 +90,13 @@ export default Mixin.create({
       allChanges.pushObject(localChanges);
     }
     return allChanges;
+  }
+});
+
+export const ClassMixin = Mixin.create({
+  wrap(content, options = {}) {
+    return this.create({
+      [config.namespace]: this.Driver.create({ content, options })
+    });
   }
 });

@@ -76,6 +76,35 @@ inside an object that is available under `dbp` key. If you don't like this name,
 you can set your own namespace in the [configuration](#configuration).
 
 
+### Extending
+
+Ember Deep Buffered Proxy ships with two classes: `ObjectProxy` and `ArrayProxy`.
+Each of them has its own driver class (`ObjectProxy.Driver` and `ArrayProxy.Driver`)
+- that's the class that gets instantiated under the namespace hook.
+Here's a general idea how to extend these classes or define custom proxy class:
+
+```javascript
+import { isArray } from '@ember/array';
+import buildProxy, { ObjectProxy, ArrayProxy } from 'ember-deep-buffered-proxy';
+
+const MyObjectProxyDriver = ObjectProxy.Driver.extend({
+});
+
+const MyObjectProxy = ObjectProxy.extend({
+}).reopenClass({
+  Driver: MyObjectProxyDriver
+});
+
+export default function(content) {
+  return buildProxy(content, {
+    proxyClassFor(obj) {
+      return isArray(obj) ? ArrayProxy : MyObjectProxy;
+    }
+  });
+}
+```
+
+
 ### Configuration
 
 To override default configuration just define your settings in `config/environment.js`
