@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "description": "Change buffering proxy for Ember Objects, arrays, promises",
   "keywords": [
-    "ember-addon", "proxy", "buffer", "changeset", "fork"
+    "ember-addon",
+    "proxy",
+    "buffer",
+    "changeset",
+    "fork"
   ],
   "repository": "https://github.com/nibynic/ember-deep-buffered-proxy.git",
   "license": "MIT",
