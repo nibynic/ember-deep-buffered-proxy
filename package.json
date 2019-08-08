@@ -1,6 +1,6 @@
 {
   "name": "ember-deep-buffered-proxy",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Change buffering proxy for Ember Objects, arrays, promises",
   "keywords": [
     "ember-addon",
