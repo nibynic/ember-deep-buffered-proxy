@@ -65,17 +65,17 @@ module('Unit | Mixin | object proxy', function() {
       })
     }).create({ proxy });
 
-    assert.equal(derivative.title, 'Post title');
+    assert.equal(derivative.get('title'), 'Post title');
 
     run(() => {
       set(proxy, 'title', 'New title');
     });
 
-    assert.equal(derivative.title, 'New title');
+    assert.equal(derivative.get('title'), 'New title');
 
-    proxy.dbp.discardChanges();
+    proxy.get('dbp').discardChanges();
 
-    assert.equal(derivative.title, 'Post title');
+    assert.equal(derivative.get('title'), 'Post title');
   });
 
 
