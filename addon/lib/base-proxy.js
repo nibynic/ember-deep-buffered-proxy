@@ -95,8 +95,8 @@ export const DriverMixin = Mixin.create({
 
 export const ClassMixin = Mixin.create({
   wrap(content, options = {}) {
-    return this.create({
-      [config.namespace]: this.Driver.create({ content, options })
-    });
+    let proxy = this.create();
+    proxy.set(config.namespace, this.Driver.create({ content, options, proxy }));
+    return proxy;
   }
 });

@@ -22,7 +22,7 @@ const Driver = EmberObject.extend(DriverMixin, {
   },
 
   notifyAfterSet(key) {
-    this.notifyPropertyChange(key);
+    this.proxy.notifyPropertyChange(key);
     this.notifyOnce('localChanges');
     this.notifyOnce('childProxies');
   },
@@ -79,7 +79,7 @@ const Driver = EmberObject.extend(DriverMixin, {
   discardLocalChanges() {
     let keys = Object.keys(this.get('buffer'))
     this._super(...arguments);
-    keys.forEach((k) => this.notifyPropertyChange(k));
+    keys.forEach((k) => this.proxy.notifyPropertyChange(k));
   },
 
   willDestroy() {

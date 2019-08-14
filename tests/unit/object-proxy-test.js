@@ -5,21 +5,15 @@ import { A } from '@ember/array';
 import { module, test } from 'qunit';
 import { run } from '@ember/runloop';
 import sinon from 'sinon';
+import EmberObject, { computed } from '@ember/object';
 
 module('Unit | Mixin | object proxy', function() {
-
-  function buildArrayProxy(content) {
-    return ArrayProxy.create({ dbp: ArrayProxy.Driver.create({ content }) });
-  }
-  function buildObjectProxy(content) {
-    return ObjectProxy.create({ dbp: ObjectProxy.Driver.create({ content }) });
-  }
 
   test('it buffers simple values', function (assert) {
     let content = {
       title: 'Post title'
     };
-    let proxy = buildObjectProxy(content);
+    let proxy = ObjectProxy.wrap(content);
 
     assert.equal(get(proxy,    'dbp.hasLocalChanges'), false, 'should be pristine');
 
@@ -60,11 +54,35 @@ module('Unit | Mixin | object proxy', function() {
     }, 'proxy should report no local changes again');
   });
 
+  test('it propagates changes to computed properties', function (assert) {
+    let content = {
+      title: 'Post title'
+    };
+    let proxy = ObjectProxy.wrap(content);
+    let derivative = EmberObject.extend({
+      title: computed('proxy.title', function() {
+        return this.get('proxy.title');
+      })
+    }).create({ proxy });
+
+    assert.equal(derivative.title, 'Post title');
+
+    run(() => {
+      set(proxy, 'title', 'New title');
+    });
+
+    assert.equal(derivative.title, 'New title');
+
+    proxy.dbp.discardChanges();
+
+    assert.equal(derivative.title, 'Post title');
+  });
+
 
   test('it buffers nested objects', function (assert) {
     let author = { firstName: 'John' };
     let content = { author: author };
-    let proxy = buildObjectProxy(content);
+    let proxy = ObjectProxy.wrap(content);
 
     assert.equal(get(proxy,    'dbp.hasChanges'), false, 'should be pristine');
 
@@ -120,7 +138,7 @@ module('Unit | Mixin | object proxy', function() {
     });
 
     let author2 = { firstName: 'William' };
-    let author2ObjectProxy = buildObjectProxy(author2);
+    let author2ObjectProxy = ObjectProxy.wrap(author2);
     run(() => {
       set(proxy, 'author', author2ObjectProxy);
     });
@@ -148,7 +166,7 @@ module('Unit | Mixin | object proxy', function() {
   test('it buffers nested arrays', function (assert) {
     let tags = ['lifestyle', 'coffee']
     let content = { tags: tags };
-    let proxy = buildObjectProxy(content);
+    let proxy = ObjectProxy.wrap(content);
 
     assert.equal(get(proxy,       'dbp.hasChanges'), false, 'should be pristine');
 
@@ -200,7 +218,7 @@ module('Unit | Mixin | object proxy', function() {
     });
 
     let tags2 = ['plants', 'gardening'];
-    let tags2ObjectProxy = buildArrayProxy(tags2);
+    let tags2ObjectProxy = ArrayProxy.wrap(tags2);
     run(() => {
       set(proxy, 'tags', tags2ObjectProxy);
     });
@@ -245,7 +263,7 @@ module('Unit | Mixin | object proxy', function() {
       () => attributeOnDelete = proxy.get('dbp.content.attribute')
     );
 
-    let proxy = buildObjectProxy({
+    let proxy = ObjectProxy.wrap({
       attribute: 'before',
       deleteRecord: stub
     });
@@ -262,7 +280,7 @@ module('Unit | Mixin | object proxy', function() {
     assert.ok(stub.calledOnce, 'should call deleteRecord on applyChanges');
     assert.equal(attributeOnDelete, 'after', 'should call deleteRecord after all changes were applied');
 
-    proxy = buildObjectProxy({
+    proxy = ObjectProxy.wrap({
       content: {
         deleteRecord: stub
       }
