@@ -1,18 +1,21 @@
-import EmberObject, { computed } from '@ember/object';
+import EmberObject, { computed, defineProperty } from '@ember/object';
 import { DriverMixin, ClassMixin } from 'ember-deep-buffered-proxy/lib/base-proxy';
 import { module, test } from 'qunit';
 
 module('Unit | Mixin | base proxy', function() {
   const Proxy = EmberObject.extend({}).reopenClass(ClassMixin, {
     Driver: EmberObject.extend(DriverMixin, {
-      buffer: computed(() => ({})),
+      buffer: computed({
+        get: () => ({}),
+        set: (k, v) => v
+      }),
       eachBufferEntry(callback) {
         Object.entries(this.get('buffer')).forEach(([k, v]) => callback(k, v));
       },
-      localChanges: computed(() => ({
-        was: {},
-        is: {}
-      })),
+      localChanges: computed({
+        get: () => ({ was: {}, is: {} }),
+        set: (k, v) => v
+      }),
       hasLocalChanges: computed('localChanges', function() {
         return Object.keys(this.get('localChanges.is')).length > 0;
       })
@@ -20,6 +23,12 @@ module('Unit | Mixin | base proxy', function() {
   });
   function buildProxy(attrs = {}) {
     return Proxy.create({ dbp: Proxy.Driver.create(attrs) });
+  }
+  function override(object, key, value) {
+    defineProperty(object, key, computed({
+      get: () => value,
+      set: (k, v) => v
+    }));
   }
 
   test('it detects child proxies', function (assert) {
@@ -35,15 +44,15 @@ module('Unit | Mixin | base proxy', function() {
   });
 
   test('it observes changes in nested proxies', function (assert) {
-    let proxy = buildProxy({
-      childProxies: [
-        buildProxy({ hasChanges: false })
-      ]
-    });
+    let child = buildProxy();
+    override(child.dbp, 'hasChanges', false);
+
+    let proxy = buildProxy();
+    override(proxy.dbp, 'childProxies', [child]);
 
     assert.notOk(proxy.get('dbp.hasChanges'), 'should be false');
 
-    proxy.set('dbp.childProxies.firstObject.dbp.hasChanges', true);
+    child.set('dbp.hasChanges', true);
 
     assert.ok(proxy.get('dbp.hasChanges'), 'should be true');
   });
