@@ -45,13 +45,23 @@ module('Unit | Mixin | object proxy', function() {
       proxy.get('dbp').applyChanges();
     });
 
-    assert.equal(get(proxy,    'dbp.hasChanges'), false, 'should become pristine again');
+    assert.equal(get(proxy,    'dbp.hasChanges'), false, 'should become pristine');
     assert.equal(get(proxy,    'title'), 'Second title', 'proxy should use the second value');
     assert.equal(get(content,  'title'), 'Second title', 'content should use the second value');
     assert.deepEqual(get(proxy, 'dbp.localChanges'), {
       was:  { },
       is:   { }
-    }, 'proxy should report no local changes again');
+    }, 'proxy should report no local changes');
+
+    set(content, 'title', 'Third title');
+
+    assert.equal(get(proxy,    'dbp.hasChanges'), false, 'should become pristine');
+    assert.equal(get(proxy,    'title'), 'Third title', 'proxy should use the third value');
+    assert.equal(get(content,  'title'), 'Third title', 'content should use the third value');
+    assert.deepEqual(get(proxy, 'dbp.localChanges'), {
+      was:  { },
+      is:   { }
+    }, 'proxy should report no local changes');
   });
 
   test('it propagates changes to computed properties', function (assert) {

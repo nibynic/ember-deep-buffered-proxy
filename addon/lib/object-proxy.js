@@ -101,8 +101,9 @@ export default EmberObjectProxy.extend({
       return buffer[key];
     } else {
       let value = this._super(key);
-      let proxy = buffer[key] = buildProxy(value, this.get(`${config.namespace}.options`));
+      let proxy = buildProxy(value, this.get(`${config.namespace}.options`));
       if (proxy !== value) {
+        buffer[key] = proxy;
         this.get(config.namespace).notifyAfterGet();
       }
       return proxy;
