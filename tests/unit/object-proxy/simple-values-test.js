@@ -58,7 +58,7 @@ module('Unit | Mixin | object proxy / simple values', function(hooks) {
     }, 'proxy should report no local changes');
   });
 
-  test('it ignores content changes', function (assert) {
+  test('it updates on content changes', function (assert) {
     run(() => {
       set(this.content, 'title', 'Third title');
     });

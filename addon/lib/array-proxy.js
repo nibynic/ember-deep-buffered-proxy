@@ -24,7 +24,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     let removed = content.slice(start, start + removeCount);
     let buffer = this.get('buffer');
     removed.forEach((item) => {
-      let proxy = buffer.findBy(`${config.namespace}.content`, item);
+      let proxy = buffer.find((p) => getContent(p) === item);
       buffer.removeObject(proxy);
     });
   },
