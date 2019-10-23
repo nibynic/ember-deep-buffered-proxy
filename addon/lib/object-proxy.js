@@ -40,7 +40,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     let map = { was: {}, is: {} };
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let oldValue = this.get(`content.${key}`);
-      if (!eq(oldValue, value)) {
+      if (!eq(oldValue, value, this.get('options.serialize'))) {
         map.was[key]  = oldValue;
         map.is[key]   = getContent(value);
       }
@@ -68,7 +68,7 @@ const Driver = EmberObject.extend(DriverMixin, {
           assert(`Proxy content has ${matches[0]}=${value} but ${methodName} was not found on ${content}`, method);
           methodsToCall.push([context, method]);
         }
-      } else if (!eq(get(content, key), value)) {
+      } else if (!eq(get(content, key), value, this.get('options.serialize'))) {
         set(content, key, getContent(value));
       }
     });
@@ -113,8 +113,9 @@ export default EmberObjectProxy.extend({
   setUnknownProperty(key, value) {
     let buffer = this.get(`${config.namespace}.buffer`);
     let oldValue = this.get(`${config.namespace}.content.${key}`);
-    if (!eq(buffer[key], value)) {
-      if (eq(oldValue, value)) {
+    let serialize = this.get(`${config.namespace}.options.serialize`);
+    if (!eq(buffer[key], value, serialize)) {
+      if (eq(oldValue, value, serialize)) {
         delete buffer[key];
       } else {
         buffer[key] = buildProxy(value, this.get(`${config.namespace}.options`));

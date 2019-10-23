@@ -8,6 +8,9 @@ export default function(content, options = {}) {
   let optionsWithDefaults = assign({
     proxyClassFor(obj) {
       return isArray(obj) ? ArrayProxy : ObjectProxy;
+    },
+    serialize(obj) {
+      return JSON.stringify(obj);
     }
   }, options);
 

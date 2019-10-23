@@ -2,13 +2,16 @@ import { isArray } from '@ember/array';
 import EmberObject from '@ember/object';
 import config from './config';
 
-export function eq(a, b) {
+export function eq(a, b, serialize) {
+  serialize = serialize || ((obj) => obj);
   a = getContent(a);
   b = getContent(b);
   if (isArray(a) && isArray(b)) {
+    a = a.map(serialize);
+    b = b.map(serialize);
     return !arrayDiff(a, b).length && !arrayDiff(b, a).length;
   } else {
-    return a === b;
+    return serialize(a) === serialize(b);
   }
 }
 

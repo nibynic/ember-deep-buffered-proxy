@@ -21,7 +21,7 @@ module('Unit | Utils | build proxy', function() {
     assert.equal(get(proxy,    'dbp.hasChanges'), true, 'should become dirty');
   });
 
-  test('it uses provided proxyClassFor', function (assert) {
+  test('it uses provided proxyClassFor method', function (assert) {
     const MyProxy = ObjectProxy.extend();
     let content = {
       title: 'Post title',
@@ -32,8 +32,25 @@ module('Unit | Utils | build proxy', function() {
 
     run(() => {
       assert.ok(proxy.get('author') instanceof MyProxy);
-    });    
+    });
     assert.equal(proxyClassFor.getCall(0).args[0], content);
     assert.equal(proxyClassFor.getCall(1).args[0], content.author);
+  });
+
+  test('it uses provided serialize method', function (assert) {
+    let date1 = new Date('2019-03-21');
+    let date2 = new Date('2019-03-21');
+    let content = {
+      createdAt: date1
+    };
+    let serialize = sinon.stub().callsFake((d) => d && d.getTime());
+    let proxy = buildProxy(content, { serialize });
+
+    run(() => {
+      proxy.set('createdAt', date2);
+    });
+    assert.equal(serialize.getCall(1).args[0], date2);
+    assert.equal(serialize.getCall(2).args[0], date1);
+    assert.equal(proxy.get('dbp.hasChanges'), false);
   });
 });

@@ -80,6 +80,22 @@ inside an object that is available under `dbp` key. If you don't like this name,
 you can set your own namespace in the [configuration](#configuration).
 
 
+### What is considered a change?
+
+By default Ember Deep Buffered Proxy uses JSON serialization and strict equality
+to compare old and new values. That means that for example two `Date` instances
+are considered same as long as they have same time value. If this mechanism
+doesn't work for you, you can always provide your own serialization method in options:
+
+```javascript
+let buffer = buildProxy(model, {
+  serialize(v) {
+    return v; // use actual value without any serialization
+  }
+});
+```
+
+
 ### Extending
 
 Ember Deep Buffered Proxy ships with two classes: `ObjectProxy` and `ArrayProxy`.
