@@ -1,7 +1,5 @@
 import { DriverMixin, ClassMixin } from './base-proxy';
 import EmberObject, { computed, set, get } from '@ember/object';
-import { alias } from '@ember/object/computed';
-import EmberObjectProxy from '@ember/object/proxy';
 import buildProxy from './internal/build-proxy';
 import { eq, getContent } from './internal/utils';
 import { once, cancel } from '@ember/runloop';
@@ -90,9 +88,7 @@ const Driver = EmberObject.extend(DriverMixin, {
   }
 });
 
-export default EmberObjectProxy.extend({
-  content: alias(`${config.namespace}.content`),
-
+export default EmberObject.extend({
   [config.namespace]: null,
 
   unknownProperty(key) {
@@ -100,7 +96,7 @@ export default EmberObjectProxy.extend({
     if (buffer.hasOwnProperty(key)) {
       return buffer[key];
     } else {
-      let value = this._super(key);
+      let value = this.get(`${config.namespace}.content.${key}`);
       let proxy = buildProxy(value, this.get(`${config.namespace}.options`));
       if (proxy !== value) {
         buffer[key] = proxy;
