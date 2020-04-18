@@ -71,6 +71,7 @@
     "configPath": "tests/dummy/config"
   },
   "resolutions": {
+    "kind-of": "^6.0.3",
     "minimist": "^0.2.1"
   }
 }
