@@ -69,5 +69,8 @@
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
+  },
+  "resolutions": {
+    "minimist": "^0.2.1"
   }
 }
