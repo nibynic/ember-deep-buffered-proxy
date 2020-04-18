@@ -71,6 +71,7 @@
     "configPath": "tests/dummy/config"
   },
   "resolutions": {
+    "clean-css": "^4.1.11",
     "just-extend": "^4.0.0",
     "kind-of": "^6.0.3",
     "lodash.template": "^4.5.0",
