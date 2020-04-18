@@ -6,7 +6,7 @@ import { assert } from '@ember/debug';
 import { assign } from '@ember/polyfills';
 import config from './internal/config';
 
-export const DriverMixin = Mixin.create({
+export const DriverMixin = Mixin.create({ // eslint-disable-line ember/no-new-mixins
   eachBufferEntry(/*callback*/) {
     assert('eachBufferEntry - this method has to be implemented in a subclass', false);
   },
@@ -21,6 +21,7 @@ export const DriverMixin = Mixin.create({
 
   hasLocalChanges: computed('localChanges', function() {
     assert('hasLocalChanges - this attribute has to be implemented in a subclass', false);
+    return {};
   }),
 
   childProxies: computed('buffer.[]', function() {
@@ -93,7 +94,7 @@ export const DriverMixin = Mixin.create({
   }
 });
 
-export const ClassMixin = Mixin.create({
+export const ClassMixin = Mixin.create({ // eslint-disable-line ember/no-new-mixins
   wrap(content, options = {}) {
     let proxy = this.create();
     proxy.set(config.namespace, this.Driver.create({ content, options, proxy }));

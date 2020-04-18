@@ -93,7 +93,7 @@ export default EmberObject.extend({
 
   unknownProperty(key) {
     let buffer = this.get(`${config.namespace}.buffer`);
-    if (buffer.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(buffer, key)) {
       return buffer[key];
     } else {
       let value = this.get(`${config.namespace}.content.${key}`);
