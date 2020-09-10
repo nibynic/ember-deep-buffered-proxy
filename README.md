@@ -1,8 +1,8 @@
 Ember Deep Buffered Proxy
 ==============================================================================
 
-[![Build Status](https://travis-ci.org/nibynic/ember-deep-buffered-proxy.svg?branch=master)](https://travis-ci.org/nibynic/ember-deep-buffered-proxy)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ea8323cb16dd3d6ed3d6/maintainability)](https://codeclimate.com/github/nibynic/ember-deep-buffered-proxy/maintainability)
+[![Build Status](https://travis-ci.com/nibynic/ember-deep-buffered-proxy.svg?branch=master)](https://travis-ci.com/nibynic/ember-deep-buffered-proxy)
+[![Ember Observer Score](https://emberobserver.com/badges/ember-deep-buffered-proxy.svg)](https://emberobserver.com/addons/ember-deep-buffered-proxy)
 [![npm version](https://badge.fury.io/js/ember-deep-buffered-proxy.svg)](https://badge.fury.io/js/ember-deep-buffered-proxy)
 
 Wrap your data in a proxy that buffers all changes - meaning that you can control
