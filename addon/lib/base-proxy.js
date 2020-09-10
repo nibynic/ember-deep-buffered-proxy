@@ -34,7 +34,7 @@ export const DriverMixin = Mixin.create({ // eslint-disable-line ember/no-new-mi
     return list;
   }),
 
-  childProxiesInternals: computed(`childProxies.@each.${config.namespace}`, function() {
+  childProxiesInternals: computed(`childProxies.@each.${config.namespace}`, 'childProxies', function() {
     return A(this.get('childProxies')).mapBy(config.namespace);
   }),
 

@@ -16,7 +16,7 @@ module('Unit | Mixin | base proxy', function() {
         get: () => ({ was: {}, is: {} }),
         set: (k, v) => v
       }),
-      hasLocalChanges: computed('localChanges', function() {
+      hasLocalChanges: computed('localChanges.is', function() {
         return Object.keys(this.get('localChanges.is')).length > 0;
       })
     })

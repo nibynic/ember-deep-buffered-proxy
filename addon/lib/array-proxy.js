@@ -16,7 +16,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     });
   },
 
-  buffer: computed(function() {
+  buffer: computed('content', 'options', function() {
     return A(this.get('content').map((i) => buildProxy(i, this.options)));
   }),
 
@@ -49,7 +49,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     return map;
   }),
 
-  hasLocalChanges: computed('localChanges', function() {
+  hasLocalChanges: computed('localChanges.{added.length,removed.length}', function() {
     return this.get('localChanges.added.length') > 0 || this.get('localChanges.removed.length') > 0;
   }),
 

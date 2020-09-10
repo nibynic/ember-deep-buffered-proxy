@@ -8,6 +8,13 @@ module.exports = async function() {
     scenarios: [
       {
         name: 'ember-lts-2.12',
+        env: {
+          EMBER_OPTIONAL_FEATURES: JSON.stringify({
+            'application-template-wrapper': true,
+            'default-async-observers': false,
+            'template-only-glimmer-components': false
+          })
+        },
         npm: {
           devDependencies: {
             'ember-source': '~2.12.0'

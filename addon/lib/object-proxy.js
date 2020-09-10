@@ -34,7 +34,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     this.onceRuns[key] = once(this, this[method]);
   },
 
-  localChanges: computed('buffer', function() {
+  localChanges: computed('buffer', 'options.serialize', function() {
     let map = { was: {}, is: {} };
     Object.entries(this.get('buffer')).forEach(([key, value]) => {
       let oldValue = this.get(`content.${key}`);
@@ -46,7 +46,7 @@ const Driver = EmberObject.extend(DriverMixin, {
     return map;
   }),
 
-  hasLocalChanges: computed('localChanges', function() {
+  hasLocalChanges: computed('localChanges.is', function() {
     return Object.keys(this.get('localChanges.is')).length > 0;
   }),
 

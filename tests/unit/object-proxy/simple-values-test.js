@@ -74,9 +74,7 @@ module('Unit | Mixin | object proxy / simple values', function(hooks) {
 
   test('it propagates changes to computed properties', function (assert) {
     let derivative = EmberObject.extend({
-      title: computed('proxy.title', function() {
-        return this.get('proxy.title');
-      })
+      title: computed.reads('proxy.title')
     }).create({ proxy: this.proxy });
 
     assert.equal(derivative.get('title'), 'Post title');
