@@ -50,7 +50,7 @@ module('Unit | Utils | build proxy', function() {
       proxy.set('createdAt', date2);
     });
     assert.equal(serialize.getCall(1).args[0], date2);
-    assert.equal(serialize.getCall(2).args[0], date1);
+    assert.equal(serialize.getCall(0).args[0], date1);
     assert.equal(proxy.get('dbp.hasChanges'), false);
   });
 });

@@ -29,6 +29,22 @@ module('Unit | Mixin | object proxy / simple values', function(hooks) {
     }, 'proxy should report local changes');
   });
 
+  test('it detects changes to undefined', function (assert) {
+    assert.equal(get(this.proxy,    'dbp.hasLocalChanges'), false, 'should be pristine');
+
+    run(() => {
+      set(this.proxy, 'title', undefined);
+    });
+
+    assert.equal(get(this.proxy,    'dbp.hasChanges'), true, 'should become dirty');
+    assert.equal(get(this.proxy,    'title'), undefined, 'proxy should use the new value');
+    assert.equal(get(this.content,  'title'), 'Post title', 'content should keep the original value');
+    assert.deepEqual(get(this.proxy, 'dbp.localChanges'), {
+      was:  { title: 'Post title' },
+      is:   { title: undefined }
+    }, 'proxy should report local changes');
+  });
+
   test('it discards changes', function (assert) {
     run(() => {
       set(this.proxy, 'title', 'New title');

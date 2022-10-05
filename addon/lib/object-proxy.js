@@ -110,7 +110,7 @@ export default EmberObject.extend({
     let buffer = this.get(`${config.namespace}.buffer`);
     let oldValue = this.get(`${config.namespace}.content.${key}`);
     let serialize = this.get(`${config.namespace}.options.serialize`);
-    if (!eq(buffer[key], value, serialize)) {
+    if (!Object.prototype.hasOwnProperty.call(buffer, key) || !eq(buffer[key], value, serialize)) {
       if (eq(oldValue, value, serialize)) {
         delete buffer[key];
       } else {
