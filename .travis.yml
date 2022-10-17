@@ -3,7 +3,7 @@ language: node_js
 node_js:
   # we recommend testing addons with the same minimum supported node version as Ember CLI
   # so that your addon works for all apps
-  - "10"
+  - "12"
 
 dist: xenial
 
@@ -51,10 +51,13 @@ jobs:
     - env: EMBER_TRY_SCENARIO=ember-lts-2.12
     - env: EMBER_TRY_SCENARIO=ember-lts-3.4
     - env: EMBER_TRY_SCENARIO=ember-lts-3.20
+    - env: EMBER_TRY_SCENARIO=ember-lts-3.28
     - env: EMBER_TRY_SCENARIO=ember-release
     - env: EMBER_TRY_SCENARIO=ember-beta
     - env: EMBER_TRY_SCENARIO=ember-canary
     - env: EMBER_TRY_SCENARIO=ember-classic
+    - env: EMBER_TRY_SCENARIO=embroider-safe
+    - env: EMBER_TRY_SCENARIO=embroider-optimized
 
 script:
   - node_modules/.bin/ember try:one $EMBER_TRY_SCENARIO

@@ -8,9 +8,8 @@
 
 ## Linting
 
-* `yarn run lint:hbs`
-* `yarn run lint:js`
-* `yarn run lint:js --fix`
+* `npm run lint`
+* `npm run lint:fix`
 
 ## Running tests
 
